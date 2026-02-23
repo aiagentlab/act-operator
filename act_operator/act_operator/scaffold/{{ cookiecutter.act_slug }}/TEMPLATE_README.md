@@ -418,7 +418,7 @@ uv sync --package {{ cookiecutter.cast_snake }}
 # 현재 프로젝트에서 실행
 opencode .
 
-# 원샷 실행
+# One-shot run
 opencode run "고객 지원 챗봇 설계를 도와줘"
 ```
 

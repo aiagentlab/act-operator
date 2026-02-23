@@ -78,6 +78,19 @@ uv sync
 이 명령은 `pyproject.toml`에 정의된 모든 의존성을 설치하고 프로젝트 실행을 준비합니다.
 
 
+### OpenCode 빠른 시작
+
+```bash
+# 현재 프로젝트에서 실행
+opencode .
+
+# One-shot run
+opencode run "고객 지원 챗봇 설계를 도와줘"
+```
+
+OpenCode는 프로젝트 루트의 `.env`를 사용합니다(`langgraph.json`의 `env: ".env"`).
+
+
 ### AI와 함께 빌드 시작하기
 
 Act에는 **Agent Skills**가 내장되어 있습니다. 이는 AI 에이전트가 프로젝트를 위한 전문 기능을 **발견(Discover), 활성화(Activate), 실행(Execute)** 할 수 있도록 하는 지침 폴더입니다.
