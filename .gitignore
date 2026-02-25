@@ -155,3 +155,6 @@ sample-act/
 /.claude
 .claude-flow
 .mcp.json
+
+# study
+study/my_project
