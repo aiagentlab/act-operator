@@ -858,6 +858,134 @@ InputState, OutputState, State를 분리하는 이유를 한 문장으로 설명
 
 ---
 
+## 🧪 실습 테스트: `weekly_report` Cast 구현
+
+### 테스트 개요
+
+1주차에서 `architecting-act` 스킬로 설계한 `weekly_report` Cast를 `developing-cast` 스킬 워크플로우에 따라 실제 구현하고 LangGraph Studio에서 테스트했습니다.
+
+### 구현한 파일 (구현 순서대로)
+
+| 순서 | 파일 | 역할 |
+|:---:|---|---|
+| 1 | `modules/state.py` | `InputState`(raw_tasks, report_period), `OutputState`(final_report, summary), 내부 `State` 11필드 |
+| 2 | `modules/prompts.py` | 업무 분류 / 보고서 생성 / 수정 반영 / 요약 프롬프트 (한국어) |
+| 3 | `modules/models.py` | `ClassifiedTasks` Pydantic 스키마 + `gpt-4o-mini` 모델 팩토리 3개 |
+| 4 | `modules/nodes.py` | `CollectInput`, `ClassifyTasks`, `GenerateReport`, `HumanReview`, `FormatOutput` 5개 노드 |
+| 5 | `modules/conditions.py` | `route_after_review()` — 승인/수정/자동승인(3회 초과) 라우팅 |
+| 6 | `graph.py` | StateGraph 조립 + `MemorySaver` 체크포인터 |
+
+### 아키텍처 패턴: Cyclic + Human-in-the-Loop
+
+```mermaid
+graph TD
+    START([START]) --> CollectInput[CollectInput]
+    CollectInput --> ClassifyTasks[ClassifyTasks]
+    ClassifyTasks --> GenerateReport[GenerateReport]
+    GenerateReport --> HumanReview["HumanReview (interrupt)"]
+    HumanReview -->|approved| FormatOutput[FormatOutput]
+    HumanReview -->|revision| GenerateReport
+    FormatOutput --> END([END])
+```
+
+### 핵심 구현 포인트
+
+#### 1. Structured Output (업무 분류)
+
+`ClassifyTasks` 노드에서 `with_structured_output()`을 사용하여 LLM이 정확한 JSON 구조로 응답하도록 강제:
+
+```python
+# models.py
+class ClassifiedTasks(BaseModel):
+    completed: list[str]      # 완료 업무
+    in_progress: list[str]    # 진행 중 업무
+    next_week: list[str]      # 다음 주 계획
+
+def get_classification_model():
+    model = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    return model.with_structured_output(ClassifiedTasks)
+```
+
+#### 2. Human-in-the-Loop (`interrupt()` 함수)
+
+`HumanReview` 노드 내부에서 `langgraph.types.interrupt()`를 호출하여 사용자 입력을 받음:
+
+```python
+# nodes.py
+from langgraph.types import interrupt
+
+class HumanReview(BaseNode):
+    def execute(self, state):
+        # Studio UI에 보고서 초안을 보여주고 사용자 입력 대기
+        user_response = interrupt({
+            "draft_report": state["draft_report"],
+            "message": "승인하려면 'approve', 수정하려면 피드백을 입력하세요."
+        })
+
+        if user_response in ("approve", "승인"):
+            return {"is_approved": True}
+        else:
+            return {"is_approved": False, "review_feedback": user_response,
+                    "revision_count": state["revision_count"] + 1}
+```
+
+> [!IMPORTANT]
+> `interrupt_before` vs `interrupt()` 차이:
+> - `interrupt_before=["node"]` → 그래프 컴파일 시 설정, Studio에서 State를 직접 수정해야 해서 불편
+> - `interrupt()` 함수 → 노드 내부에서 호출, Studio UI에 **입력 프롬프트가 자동 표시**되어 직관적
+
+#### 3. 수정 루프 (최대 3회)
+
+```python
+# conditions.py
+def route_after_review(state) -> str:
+    if state.get("is_approved"):
+        return "format_output"
+    if state.get("revision_count", 0) >= 3:  # 무한 루프 방지
+        return "format_output"
+    return "generate_report"  # 보고서 재생성
+```
+
+### LangGraph Studio 테스트
+
+#### 실행 방법
+
+```bash
+# 1. 환경 변수 설정 (.env 파일을 UTF-8로 생성)
+# ⚠️ PowerShell의 echo는 UTF-16으로 저장하므로 주의!
+
+# 2. 개발 서버 실행
+uv run langgraph dev
+```
+
+#### 테스트 입력값
+
+```json
+{
+  "raw_tasks": "API 엔드포인트 구현 완료. UI 개선 70% 진행 중. 다음 주 배포 예정.",
+  "report_period": "2026-02-17 ~ 2026-02-21"
+}
+```
+
+#### Studio UI 사용법
+
+1. `https://smith.langchain.com/studio/?baseUrl=http://localhost:2024` 접속
+2. 좌측에서 `weekly-report` 그래프 선택
+3. Input에 JSON 입력 후 **Submit**
+4. `human_review` 노드에서 그래프 일시정지
+5. 하단 텍스트 영역에 `approve` 입력 후 **Resume** 클릭
+6. 최종 보고서와 요약이 출력됨
+
+### 트러블슈팅
+
+| 문제 | 원인 | 해결 |
+|---|---|---|
+| `.env` 파일 `UnicodeDecodeError` | PowerShell `echo`가 UTF-16으로 저장 | `[System.IO.File]::WriteAllText()` 사용하여 UTF-8(No BOM)으로 생성 |
+| 보고서 초안이 안 보임 | `route_after_review`가 즉시 실행되어 무한 루프 | `HumanReview` 노드를 추가하고 `interrupt()` 함수 사용 |
+| Studio에서 승인 불가 | `interrupt_before` 방식은 State 직접 수정 필요 | `langgraph.types.interrupt()` 함수로 변경하여 UI 입력 프롬프트 표시 |
+
+---
+
 ## 다음 주차 예고
 
 > **3주차: 미들웨어와 제어 흐름**에서는 Human-in-the-loop, Summarization, PII 보호 등의 미들웨어를 `middlewares.py`에 구현하고, `conditions.py`를 활용한 조건부 분기와 체크포인터를 통한 상태 저장을 학습합니다.
