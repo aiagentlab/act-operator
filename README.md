@@ -93,9 +93,8 @@ Simply mention the skill name in your prompt (e.g., "Use @architecting-act to de
 > **Note for other tools**: The `.claude` directory naming is specific to Claude Code. If you use other AI tools that support Agent Skills (like Cursor, Gemini CLI, etc.), please rename this directory or configure it according to that tool's requirements.
 
 **Available Skills**:
-- `architecting-act`: Design graph architectures through interactive questioning
+- `architecting-act`: Design graph architectures through interactive questioning, generate CLAUDE.md
 - `developing-cast`: Implement nodes, agents, tools with best practice patterns
-- `engineering-act`: Manage casts & their dependencies, create new casts
 - `testing-cast`: Write effective pytest tests with mocking strategies
 
 ### Working with Skills
@@ -111,10 +110,10 @@ Skills can be used individually or as a workflow:
   - After `act new`, design your first Act and Cast through interactive questions
   - Generates root and cast-specific CLAUDE.md files with architecture diagrams
 
-- **Adding New Cast** → Use `architecting-act` (Mode 2: Add Cast) + `engineering-act`
+- **Adding New Cast** → Use `architecting-act` (Mode 2: Add Cast)
   - Reads existing CLAUDE.md files for context
   - Designs new cast and updates CLAUDE.md files
-  - Creates cast package structure
+  - Generated CLAUDE.md includes development commands (cast creation, dependency management)
 
 - **Complex Cast Extraction** → Use `architecting-act` (Mode 3: Extract Sub-Cast)
   - Analyzes cast with >10 nodes for complexity
@@ -125,11 +124,6 @@ Skills can be used individually or as a workflow:
   - Reads cast's CLAUDE.md for specifications
   - Implements in order: state → deps → nodes → conditions → graph
   - Access 50+ patterns (agents, tools, memory, middlewares)
-
-- **Dependency Management** → Use `engineering-act`
-  - Checks CLAUDE.md Technology Stack section
-  - Manages monorepo and cast-level dependencies
-  - Syncs environment and launches dev server
 
 - **Testing** → Use `testing-cast`
   - Writes pytest tests with mocking strategies
@@ -157,7 +151,7 @@ Skills can be used individually or as a workflow:
    (architecting-act Mode 2: reads /CLAUDE.md, designs new cast, updates CLAUDE.md files)
 
 2. Scaffold Cast → "Create the knowledge-base cast package"
-   (engineering-act: runs `uv run act cast -c "knowledge-base"`)
+   (Run `uv run act cast -c "knowledge-base"` per CLAUDE.md development commands)
 
 3. Implement → "Implement knowledge-base based on its CLAUDE.md"
    (developing-cast: reads /casts/knowledge-base/CLAUDE.md, implements components)
@@ -172,7 +166,88 @@ Skills can be used individually or as a workflow:
    (architecting-act: creates /casts/input-validator/CLAUDE.md, updates parent references)
 
 3. Implement Sub-Cast → "Implement input-validator"
-   (developing-cast: implements sub-cast, engineering-act: manages dependencies)
+   (developing-cast: implements sub-cast, manages dependencies per CLAUDE.md commands)
+```
+
+## Architecture
+
+### Module Dependency
+
+The diagram below shows how modules connect within a Cast.
+
+```mermaid
+graph TD
+    LG["graph.py"] -->|inherits| BG["base_graph.py"]
+    LG -->|imports| S["state.py"]
+    LG -->|imports| N["nodes.py"]
+    LG -->|imports| CD["conditions.py"]
+    N -->|inherits| BN["base_node.py"]
+    N -.->|optional| A["agents.py"]
+    N -.->|optional| U["utils.py"]
+    A -.->|uses| M["models.py"]
+    A -.->|uses| P["prompts.py"]
+    A -.->|uses| T["tools.py"]
+    A -.->|uses| MW["middlewares.py"]
+
+    classDef required fill:#4a9eff,stroke:#2d7cd6,color:#fff
+    classDef optional fill:#a0a0a0,stroke:#808080,color:#fff
+    classDef base fill:#34c759,stroke:#28a745,color:#fff
+    classDef entry fill:#ff9500,stroke:#e68a00,color:#fff
+
+    class LG entry
+    class G,S,N required
+    class BG,BN base
+    class CD,A,T,MW,M,P,U optional
+```
+
+> **Legend**: 🟠 Entry Point / 🔵 Required / 🟢 Base Class / ⚫ Optional
+
+### Execution Flow
+
+```mermaid
+sequenceDiagram
+    participant G as Graph
+    participant N as Node (BaseNode)
+    participant St as State
+
+    G->>St: Initialize State from InputState
+    loop For each node in graph
+        G->>N: node.__call__(state, config, runtime)
+        N->>N: execute(state, ...) → dict
+        N->>St: Merge returned dict into State
+    end
+    G->>G: Extract OutputState → Result
+```
+
+### Skill-Driven Development Flow
+
+```mermaid
+sequenceDiagram
+    participant U as Developer
+    box rgba(100, 149, 237, 0.15) Agent Skills
+        participant AA as architecting-act
+        participant DC as developing-cast
+        participant TC as testing-cast
+    end
+    participant P as Act Project
+
+    Note over U,P: Phase 1 — Architecture Design
+    U->>AA: Instruct the agent to design the Act/Cast architecture
+    AA->>U: AskUserQuestion (purpose, pattern, tech stack)
+    U->>AA: Answer selections
+    AA->>P: Generate CLAUDE.md (architecture spec)
+
+    Note over U,P: Phase 2 — Implementation
+    U->>DC: Instruct the agent to implement the Cast's Modules
+    DC->>P: Read CLAUDE.md (architecture spec)
+    DC->>P: state.py → nodes.py → conditions.py → optional modules → graph.py
+    DC->>P: Install dependencies (uv add)
+
+    Note over U,P: Phase 3 — Testing
+    U->>TC: Instruct the agent to test the Cast 
+    TC->>P: Read implementation code
+    TC->>P: Node unit tests + Graph integration tests
+    TC->>P: uv run pytest --cov
 ```
 
 ## Project Structure
@@ -181,31 +256,36 @@ Skills can be used individually or as a workflow:
 my_workflow/
 ├── .claude/
 │   └── skills/                    # AI collaboration guides
-│       ├── architecting-act/      # Architecture design
+│       ├── architecting-act/      # Architecture design & development commands
+│       │   ├── resources/         # Design patterns, questions, decision matrices
+│       │   ├── scripts/           # Architecture validation (validate_architecture.py)
+│       │   └── templates/         # CLAUDE.md generation templates
 │       ├── developing-cast/       # Implementation patterns
-│       ├── engineering-act/       # Project management
+│       │   └── resources/         # 50+ LangGraph patterns (core, agents, memory, middleware, ...)
 │       └── testing-cast/          # Testing strategies
+│           └── resources/         # Mocking, fixtures, coverage guides
 ├── casts/
-│   ├── base_node.py              # Base node class
-│   ├── base_graph.py             # Base graph utilities
+│   ├── base_node.py              # Base node class (sync/async, signature validation)
+│   ├── base_graph.py             # Base graph class (abstract build method)
 │   └── chatbot/                  # Your cast (graph package)
 │       ├── modules/
-│       │   ├── state.py          # Graph state definition
-│       │   ├── nodes.py          # Node implementations
-│       │   ├── agents.py         # Agent configurations
-│       │   ├── tools.py          # Tool definitions
-│       │   ├── models.py         # LLM model configs
-│       │   ├── conditions.py     # Routing conditions
-│       │   ├── middlewares.py    # Custom middleware
-│       │   └── prompts.py        # Prompt templates
-│       ├── graph.py              # Graph assembly
-│       └── pyproject.toml        # Cast dependencies
+│       │   ├── state.py          # [Required] InputState, OutputState, State
+│       │   ├── nodes.py          # [Required] Node implementations (BaseNode subclass)
+│       │   ├── agents.py         # [Optional] Agent configurations
+│       │   ├── tools.py          # [Optional] Tool definitions / MCP adapters
+│       │   ├── models.py         # [Optional] LLM model configs
+│       │   ├── conditions.py     # [Optional] Routing conditions
+│       │   ├── middlewares.py    # [Optional] Lifecycle hooks (before/after agent/model)
+│       │   ├── prompts.py        # [Optional] Prompt templates
+│       │   └── utils.py          # [Optional] Helper functions
+│       ├── graph.py              # Graph assembly (BaseGraph subclass → entry point)
+│       └── pyproject.toml        # Cast-specific dependencies
 ├── tests/
-│   ├── cast_tests/               # Graph-level tests
-│   └── node_tests/               # Unit tests
-├── langgraph.json                # LangGraph configuration
-├── pyproject.toml                # Monorepo dependencies
-├── TEMPLATE_README.md            # Template Using Guideline
+│   ├── cast_tests/               # Graph integration tests
+│   └── node_tests/               # Node unit tests
+├── langgraph.json                # LangGraph entry points (graph registration)
+├── pyproject.toml                # Monorepo workspace (uv workspace, shared deps)
+├── TEMPLATE_README.md            # Template usage guideline
 └── README.md
 ```
 
@@ -308,8 +388,8 @@ We welcome contributions from the community! Please read our contributing guide:
 
 Thank you to all our contributors! Your contributions make Act Operator better.
 
-<a href="https://github.com/Proact0/Act-Operator/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Proact0/Act-Operator" />
+<a href="https://github.com/Proact0/act-operator/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Proact0/act-operator" />
 </a>
 
 ## License

@@ -93,9 +93,8 @@ claude
 > **다른 도구 사용 시 참고**: `.claude` 디렉터리 명명은 Claude Code 전용입니다. Agent Skills를 지원하는 다른 AI 도구(Cursor, Gemini CLI 등)를 사용하는 경우, 해당 도구의 요구사항에 맞춰 디렉터리 이름을 변경하거나 설정하세요.
 
 **사용 가능한 스킬**:
-- `architecting-act`: 대화형 질문을 통한 그래프 아키텍처 설계
+- `architecting-act`: 대화형 질문을 통한 그래프 아키텍처 설계,  CLAUDE.md 생성
 - `developing-cast`: 모범 사례 패턴으로 노드, 에이전트, 도구 구현
-- `engineering-act`: 캐스트 및 의존성 관리, 새로운 캐스트 생성
 - `testing-cast`: 모킹 전략을 활용한 효과적인 pytest 테스트 작성
 
 ### 스킬 활용하기
@@ -111,10 +110,10 @@ claude
   - `act new` 실행 후, 대화형 질문을 통해 첫 번째 Act와 Cast 설계
   - 아키텍처 다이어그램과 함께 루트 및 캐스트별 CLAUDE.md 파일 생성
 
-- **새 Cast 추가** → `architecting-act` (모드 2: Cast 추가) + `engineering-act` 사용
+- **새 Cast 추가** → `architecting-act` 사용 (모드 2: Cast 추가)
   - 기존 CLAUDE.md 파일을 읽어 컨텍스트 파악
   - 새 캐스트 설계 및 CLAUDE.md 파일 업데이트
-  - 캐스트 패키지 구조 생성
+  - 생성된 CLAUDE.md에 개발 명령어 포함 (캐스트 생성, 의존성 관리)
 
 - **복잡한 Cast 추출** → `architecting-act` 사용 (모드 3: Sub-Cast 추출)
   - 10개 이상의 노드를 가진 캐스트의 복잡도 분석
@@ -125,11 +124,6 @@ claude
   - 캐스트의 CLAUDE.md에서 명세 읽기
   - state → deps → nodes → conditions → graph 순서로 구현
   - 50개 이상의 패턴 활용 (agents, tools, memory, middlewares)
-
-- **의존성 관리** → `engineering-act` 사용
-  - CLAUDE.md의 Technology Stack 섹션 확인
-  - 모노레포 및 캐스트 레벨 의존성 관리
-  - 환경 동기화 및 개발 서버 실행
 
 - **테스팅** → `testing-cast` 사용
   - 모킹 전략을 활용한 pytest 테스트 작성
@@ -157,7 +151,7 @@ claude
    (architecting-act 모드 2: /CLAUDE.md 읽고, 새 캐스트 설계, CLAUDE.md 파일 업데이트)
 
 2. Cast 스캐폴딩 → "knowledge-base 캐스트 패키지 생성"
-   (engineering-act: `uv run act cast -c "knowledge-base"` 실행)
+   (CLAUDE.md 개발 명령어에 따라 `uv run act cast -c "knowledge-base"` 실행)
 
 3. 구현 → "CLAUDE.md 기반으로 knowledge-base 구현"
    (developing-cast: /casts/knowledge-base/CLAUDE.md 읽고, 컴포넌트 구현)
@@ -172,7 +166,88 @@ claude
    (architecting-act: /casts/input-validator/CLAUDE.md 생성, 부모 참조 업데이트)
 
 3. Sub-Cast 구현 → "input-validator 구현"
-   (developing-cast: 서브 캐스트 구현, engineering-act: 의존성 관리)
+   (developing-cast: 서브 캐스트 구현, CLAUDE.md 명령어로 의존성 관리)
+```
+
+## 아키텍처
+
+### 모듈 의존성
+
+아래 다이어그램은 Cast 내부 모듈 간의 연결 구조를 보여줍니다.
+
+```mermaid
+graph TD
+    LG["graph.py"] -->|상속| BG["base_graph.py"]
+    LG -->|가져오기| S["state.py"]
+    LG -->|가져오기| N["nodes.py"]
+    LG -->|가져오기| CD["conditions.py"]
+    N -->|상속| BN["base_node.py"]
+    N -.->|선택| A["agents.py"]
+    N -.->|선택| U["utils.py"]
+    A -.->|사용| M["models.py"]
+    A -.->|사용| P["prompts.py"]
+    A -.->|사용| T["tools.py"]
+    A -.->|사용| MW["middlewares.py"]
+
+    classDef required fill:#4a9eff,stroke:#2d7cd6,color:#fff
+    classDef optional fill:#a0a0a0,stroke:#808080,color:#fff
+    classDef base fill:#34c759,stroke:#28a745,color:#fff
+    classDef entry fill:#ff9500,stroke:#e68a00,color:#fff
+
+    class LG entry
+    class G,S,N required
+    class BG,BN base
+    class CD,A,T,MW,M,P,U optional
+```
+
+> **범례**: 🟠 진입점 / 🔵 필수 / 🟢 베이스 클래스 / ⚫ 선택적
+
+### 실행 흐름
+
+```mermaid
+sequenceDiagram
+    participant G as 그래프
+    participant N as 노드 (BaseNode)
+    participant St as 상태(State)
+
+    G->>St: InputState로 State 초기화
+    loop 그래프 내 각 노드에 대해
+        G->>N: node.__call__(state, config, runtime)
+        N->>N: execute(state, ...) → dict
+        N->>St: 반환된 dict를 State에 병합
+    end
+    G->>G: OutputState 추출 → 결과
+```
+
+### 스킬 기반 개발 흐름
+
+```mermaid
+sequenceDiagram
+    participant U as Developer
+    box rgba(100, 149, 237, 0.15) Agent Skills
+        participant AA as @architecting-act
+        participant DC as @developing-cast
+        participant TC as @testing-cast
+    end
+    participant P as Act Project
+
+    Note over U,P: 1단계 — 아키텍처 설계
+    U->>AA: Act/Cast 아키텍처 설계 지시
+    AA->>U: AskUserQuestion (목적, 패턴, 기술 스택)
+    U->>AA: 선택지 응답
+    AA->>P: CLAUDE.md 생성 (아키텍처 명세)
+
+    Note over U,P: 2단계 — 구현
+    U->>DC: Cast 모듈 구현 지시
+    DC->>P: CLAUDE.md 읽기 (아키텍처 명세)
+    DC->>P: state.py → nodes.py → conditions.py → graph.py
+    DC->>P: 의존성 설치 (uv add)
+
+    Note over U,P: 3단계 — 테스팅
+    U->>TC: Cast 테스트 지시
+    TC->>P: 구현 코드 읽기
+    TC->>P: 노드 단위 테스트 + 그래프 통합 테스트
+    TC->>P: uv run pytest --cov
 ```
 
 ## 프로젝트 구조
@@ -181,30 +256,35 @@ claude
 my_workflow/
 ├── .claude/
 │   └── skills/                    # AI 협업 가이드
-│       ├── architecting-act/      # 아키텍처 설계
+│       ├── architecting-act/      # 아키텍처 설계 및 개발 명령어
+│       │   ├── resources/         # 디자인 패턴, 질문, 결정 매트릭스
+│       │   ├── scripts/           # 아키텍처 검증 (validate_architecture.py)
+│       │   └── templates/         # CLAUDE.md 생성 템플릿
 │       ├── developing-cast/       # 구현 패턴
-│       ├── engineering-act/       # 프로젝트 관리
+│       │   └── resources/         # 50개 이상의 LangGraph 패턴 (core, agents, memory, middleware, ...)
 │       └── testing-cast/          # 테스팅 전략
+│           └── resources/         # 모킹, 픽스처, 커버리지 가이드
 ├── casts/
-│   ├── base_node.py              # 베이스 노드 클래스
-│   ├── base_graph.py             # 베이스 그래프 유틸리티
-│   └── chatbot/                  # 캐스트(그래프 패키지)
+│   ├── base_node.py              # 베이스 노드 클래스 (동기/비동기, 시그니처 검증)
+│   ├── base_graph.py             # 베이스 그래프 클래스 (추상 build 메서드)
+│   └── chatbot/                  # 캐스트 (그래프 패키지)
 │       ├── modules/
-│       │   ├── state.py          # 그래프 상태 정의
-│       │   ├── nodes.py          # 노드 구현
-│       │   ├── agents.py         # 에이전트 설정
-│       │   ├── tools.py          # 도구 정의
-│       │   ├── models.py         # LLM 모델 설정
-│       │   ├── conditions.py     # 라우팅 조건
-│       │   ├── middlewares.py    # 커스텀 미들웨어
-│       │   └── prompts.py        # 프롬프트 템플릿
-│       ├── graph.py              # 그래프 조립
-│       └── pyproject.toml        # 캐스트 의존성
+│       │   ├── state.py          # [필수] InputState, OutputState, State
+│       │   ├── nodes.py          # [필수] 노드 구현 (BaseNode 서브클래스)
+│       │   ├── agents.py         # [선택] 에이전트 설정
+│       │   ├── tools.py          # [선택] 도구 정의 / MCP 어댑터
+│       │   ├── models.py         # [선택] LLM 모델 설정
+│       │   ├── conditions.py     # [선택] 라우팅 조건
+│       │   ├── middlewares.py    # [선택] 라이프사이클 훅 (before/after agent/model)
+│       │   ├── prompts.py        # [선택] 프롬프트 템플릿
+│       │   └── utils.py          # [선택] 헬퍼 함수
+│       ├── graph.py              # 그래프 조립 (BaseGraph 서브클래스 → 진입점)
+│       └── pyproject.toml        # 캐스트별 의존성
 ├── tests/
-│   ├── cast_tests/               # 그래프 레벨 테스트
-│   └── node_tests/               # 단위 테스트
-├── langgraph.json                # LangGraph 설정
-├── pyproject.toml                # 모노레포 의존성
+│   ├── cast_tests/               # 그래프 통합 테스트
+│   └── node_tests/               # 노드 단위 테스트
+├── langgraph.json                # LangGraph 진입점 (그래프 등록)
+├── pyproject.toml                # 모노레포 워크스페이스 (uv workspace, 공유 의존성)
 ├── TEMPLATE_README.md            # 템플릿 사용 가이드라인
 └── README.md
 ```
@@ -308,8 +388,8 @@ act cast [OPTIONS]
 
 모든 기여자분들께 감사드립니다! 여러분의 기여가 Act Operator를 더 나아지게 만듭니다.
 
-<a href="https://github.com/Proact0/Act-Operator/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Proact0/Act-Operator" />
+<a href="https://github.com/Proact0/act-operator/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Proact0/act-operator" />
 </a>
 
 ## 라이선스

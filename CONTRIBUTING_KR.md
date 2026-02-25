@@ -41,8 +41,8 @@ pip install uv
 
 ```bash
 # 리포지토리 클론
-git clone https://github.com/Proact0/Act-Operator.git
-cd Act-Operator/act_operator
+git clone https://github.com/Proact0/act-operator.git
+cd act-operator/act_operator
 
 # 의존성 설치
 uv sync
@@ -113,9 +113,8 @@ Act Operator 프로젝트는 여러 컴포넌트로 구성되어 있습니다.
 **위치**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **포함 스킬**:
-- `architecting-act`: 아키텍처 설계
+- `architecting-act`: 아키텍처 설계 및 CLAUDE.md 생성
 - `developing-cast`: 구현 패턴
-- `engineering-act`: 프로젝트 관리
 - `testing-cast`: 테스팅 전략
 
 ### 4️⃣ 문서 (별도 레포)
@@ -490,7 +489,7 @@ PR 제출 전 확인하세요:
 ### 보안 취약점 보고
 
 **보고 방법:**
-- **채널**: [GitHub Security Advisories](https://github.com/Proact0/Act-Operator/security/advisories)
+- **채널**: [GitHub Security Advisories](https://github.com/Proact0/act-operator/security/advisories)
 - **필수 정보**:
   - 재현 절차 (단계별 상세 설명)
   - 영향 범위 (영향 받는 버전, 기능)
