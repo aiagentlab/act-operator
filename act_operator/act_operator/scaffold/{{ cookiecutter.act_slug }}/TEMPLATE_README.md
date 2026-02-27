@@ -80,6 +80,18 @@ uv sync --package {{ cookiecutter.cast_snake }}
 
 > Member names match the `[project].name` in each `pyproject.toml` under `casts/<cast_name>`.
 
+## OpenCode Quick Start
+
+```bash
+# Launch in the current project
+opencode .
+
+# One-shot run
+opencode run "Design a customer support chatbot"
+```
+
+OpenCode reads environment variables from the project root `.env` (set in `langgraph.json` as `env: ".env"`).
+
 ## Graph Registry (langgraph.json)
 
 Declare graphs to expose in `langgraph.json`. A basic example is as follows:
@@ -399,6 +411,18 @@ uv sync --package {{ cookiecutter.cast_snake }}
 ```
 
 > 멤버명은 `casts/<cast_name>` 하위의 각 `pyproject.toml`의 `[project].name`과 일치합니다.
+
+## OpenCode 빠른 시작
+
+```bash
+# 현재 프로젝트에서 실행
+opencode .
+
+# One-shot run
+opencode run "고객 지원 챗봇 설계를 도와줘"
+```
+
+OpenCode는 프로젝트 루트의 `.env`를 사용합니다(`langgraph.json`의 `env: ".env"`).
 
 ## 그래프 레지스트리(langgraph.json)
 

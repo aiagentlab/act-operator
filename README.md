@@ -78,6 +78,19 @@ uv sync
 This command installs all dependencies defined in `pyproject.toml` and prepares the project for execution.
 
 
+### OpenCode Quick Start
+
+```bash
+# Launch in the current project
+opencode .
+
+# One-shot run
+opencode run "Design a customer support chatbot"
+```
+
+OpenCode reads environment variables from the project root `.env` (set in `langgraph.json` as `env: ".env"`).
+
+
 ### Start Building with AI
 
 Act includes built-in **Agent Skills**—folders of instructions that allow AI agents to **discover, activate, and execute** specialized capabilities for this project.
