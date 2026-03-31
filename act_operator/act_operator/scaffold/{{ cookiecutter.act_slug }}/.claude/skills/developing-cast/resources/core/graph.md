@@ -155,6 +155,79 @@ class InterruptibleGraph(BaseGraph):
 
 ---
 
+## Type-Safe Streaming v2 (langgraph v1.1+)
+
+Pass `version="v2"` to `stream()`/`astream()` for unified `StreamPart` output. Every chunk has `type`, `ns`, and `data` keys:
+
+```python
+graph = my_graph.build()
+
+# v2 streaming — unified StreamPart format
+for chunk in graph.stream(
+    {"topic": "ice cream"},
+    stream_mode=["updates", "custom"],
+    version="v2",
+):
+    if chunk["type"] == "updates":
+        for node_name, state in chunk["data"].items():
+            print(f"Node {node_name} updated: {state}")
+    elif chunk["type"] == "custom":
+        print(f"Status: {chunk['data']['status']}")
+```
+
+### StreamPart Types
+
+Import from `langgraph.types`:
+
+| Type | Description |
+|------|-------------|
+| `ValuesStreamPart` | Full state snapshot after each step |
+| `UpdatesStreamPart` | Changed keys from each node |
+| `MessagesStreamPart` | LLM token chunks with metadata |
+| `CustomStreamPart` | User-defined data via `get_stream_writer()` |
+| `CheckpointStreamPart` | Checkpoint events (requires checkpointer) |
+| `TasksStreamPart` | Task start/finish events with results/errors |
+| `DebugStreamPart` | Combined checkpoint + task info |
+| `StreamPart` | Union type enabling full type narrowing |
+
+### Type Narrowing
+
+Filtering by `chunk["type"]` automatically narrows `chunk["data"]`:
+
+```python
+for part in graph.stream(inputs, stream_mode=["values", "messages"], version="v2"):
+    if part["type"] == "values":
+        topic = part["data"]["topic"]  # Full state access
+    elif part["type"] == "messages":
+        msg, metadata = part["data"]   # (token, metadata) tuple
+```
+
+## Type-Safe Invoke v2 (langgraph v1.1+)
+
+Pass `version="v2"` to `invoke()`/`ainvoke()` to get a `GraphOutput` with `.value` and `.interrupts`:
+
+```python
+from langgraph.types import GraphOutput
+
+result = graph.invoke({"query": "hello"}, version="v2")
+result.value       # dict, Pydantic model, or dataclass (auto-coerced)
+result.interrupts  # tuple of Interrupt objects (replaces v1's __interrupt__ key)
+```
+
+### v1 vs v2 Differences
+
+| Aspect | v1 | v2 |
+|--------|----|----|
+| Single stream mode | Raw dict | `StreamPart` with `type`/`ns`/`data` |
+| Multiple stream modes | `(mode, data)` tuples | Single `StreamPart`, filter on `type` |
+| Subgraph events | `(namespace, data)` | Same `StreamPart`, check `ns` field |
+| Interrupts (invoke) | `__interrupt__` in result dict | `result.interrupts` attribute |
+| Output type | dict | `GraphOutput` (dict-style access supported for migration) |
+
+`version="v2"` is opt-in. `GraphOutput` supports dict-style access for gradual migration.
+
+---
+
 ## Decision Framework
 
 ```
