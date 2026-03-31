@@ -1,7 +1,7 @@
 ---
 name: developing-cast
 description: Implements LangGraph cast components following systematic workflow (state, deps, nodes, conditions, graph). Use when implementing cast, building nodes/agents/tools, need LangGraph patterns (memory, retry, guardrails, vector stores), or ask "implement cast", "build graph", "add node".
-version: "2026.02.18"
+version: "2026.03.31"
 author: Proact0
 allowed-tools:
   - Bash(uv sync *)
@@ -14,9 +14,9 @@ allowed-tools:
   - Edit
   - AskUserQuestion
 ---
-# Developing {{ cookiecutter.act_name }}'s Cast
+# Developing Backend's Cast
 
-Implement LangGraph casts following {{ cookiecutter.act_name }} Act patterns.
+Implement LangGraph casts following Backend Act patterns.
 
 ## When to Use
 
@@ -26,8 +26,8 @@ Implement LangGraph casts following {{ cookiecutter.act_name }} Act patterns.
 
 ## When NOT to Use
 
-- DeepAgent harness (create_deep_agent, backends, subagents) → `developing-deepagent`
 - Architecture design → `architecting-act`
+- DeepAgent harness (create_deep_agent, backends, subagents) → `developing-deepagent`
 - Project setup → `engineering-act`
 - Testing → `testing-cast`
 
