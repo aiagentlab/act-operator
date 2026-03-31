@@ -12,7 +12,7 @@ Success Criteria:
 - All casts in table have corresponding CLAUDE.md files
 - All Cast CLAUDE.md files have complete sections
 - Diagrams show START -> nodes -> END
-- State schemas are complete
+- Node specifications are complete
 - Dependencies are documented
 - Cross-references between files work
 - No placeholder text
@@ -191,11 +191,7 @@ def parse_cast_claude_md(content: str, cast_name: str) -> dict:
         "has_pattern": False,
         "has_latency": False,
         "has_diagram": False,
-        "has_input_state": False,
-        "has_output_state": False,
-        "has_overall_state": False,
         "has_nodes": False,
-        "has_tech_stack": False,
         "has_cast_structure": False,
         # Mermaid validation
         "mermaid_has_start": False,
@@ -206,10 +202,6 @@ def parse_cast_claude_md(content: str, cast_name: str) -> dict:
         # Node validation
         "nodes": [],
         "nodes_in_diagram": [],
-        # State validation
-        "input_state_fields": [],
-        "output_state_fields": [],
-        "overall_state_fields": [],
         # Placeholder detection
         "has_placeholders": False,
         "placeholder_locations": [],
@@ -221,11 +213,7 @@ def parse_cast_claude_md(content: str, cast_name: str) -> dict:
     data["has_pattern"] = "**Pattern:**" in content
     data["has_latency"] = "**Latency:**" in content
     data["has_diagram"] = "## Architecture Diagram" in content
-    data["has_input_state"] = "### InputState" in content
-    data["has_output_state"] = "### OutputState" in content
-    data["has_overall_state"] = "### OverallState" in content
     data["has_nodes"] = "## Node Specifications" in content
-    data["has_tech_stack"] = "## Technology Stack" in content
     data["has_cast_structure"] = "## Cast Structure" in content
 
     # Check for placeholder patterns
@@ -272,34 +260,6 @@ def parse_cast_claude_md(content: str, cast_name: str) -> dict:
     # Extract node specifications
     node_spec_pattern = r"### (\w+)\s*\n\s*\| Attribute"
     data["nodes"] = re.findall(node_spec_pattern, content)
-
-    # Extract state fields
-    # InputState fields
-    input_state_match = re.search(
-        r"### InputState\s*\n\s*\|.*?\n\s*\|[-|]+\n((?:\|.*\n)*)",
-        content,
-    )
-    if input_state_match:
-        field_pattern = r"\| (\w+) \|"
-        data["input_state_fields"] = re.findall(field_pattern, input_state_match.group(1))
-
-    # OutputState fields
-    output_state_match = re.search(
-        r"### OutputState\s*\n\s*\|.*?\n\s*\|[-|]+\n((?:\|.*\n)*)",
-        content,
-    )
-    if output_state_match:
-        field_pattern = r"\| (\w+) \|"
-        data["output_state_fields"] = re.findall(field_pattern, output_state_match.group(1))
-
-    # OverallState fields
-    overall_state_match = re.search(
-        r"### OverallState\s*\n\s*\|.*?\n\s*\|[-|]+\n((?:\|.*\n)*)",
-        content,
-    )
-    if overall_state_match:
-        field_pattern = r"\| (\w+) \|"
-        data["overall_state_fields"] = re.findall(field_pattern, overall_state_match.group(1))
 
     return data
 
@@ -402,25 +362,6 @@ def validate_cast_level(data: dict, report: ValidationReport):
         data["has_diagram"],
         f"Cast {cast_name}: Architecture diagram present",
         fix_hint="Add '## Architecture Diagram' with mermaid diagram",
-    )
-
-    # State schemas
-    report.add(
-        data["has_input_state"],
-        f"Cast {cast_name}: InputState schema defined",
-        fix_hint="Add '### InputState' with field table",
-    )
-
-    report.add(
-        data["has_output_state"],
-        f"Cast {cast_name}: OutputState schema defined",
-        fix_hint="Add '### OutputState' with field table",
-    )
-
-    report.add(
-        data["has_overall_state"],
-        f"Cast {cast_name}: OverallState schema defined",
-        fix_hint="Add '### OverallState' with field table",
     )
 
     # Node specifications
@@ -527,37 +468,6 @@ def validate_cast_nodes(data: dict, report: ValidationReport):
                 )
 
 
-def validate_cast_state_completeness(data: dict, report: ValidationReport):
-    """Validate state schema completeness."""
-
-    cast_name = data["name"]
-
-    input_fields = data.get("input_state_fields", [])
-    output_fields = data.get("output_state_fields", [])
-    overall_fields = data.get("overall_state_fields", [])
-
-    # Check OverallState includes Input and Output fields
-    if input_fields and overall_fields:
-        missing_input = [f for f in input_fields if f not in overall_fields and f != "field_name"]
-        if missing_input:
-            report.add(
-                False,
-                f"Cast {cast_name}: OverallState missing InputState fields: {missing_input}",
-                severity="warning",
-                fix_hint="Add InputState fields to OverallState with Category='Input'",
-            )
-
-    if output_fields and overall_fields:
-        missing_output = [f for f in output_fields if f not in overall_fields and f != "field_name"]
-        if missing_output:
-            report.add(
-                False,
-                f"Cast {cast_name}: OverallState missing OutputState fields: {missing_output}",
-                severity="warning",
-                fix_hint="Add OutputState fields to OverallState with Category='Output'",
-            )
-
-
 def validate_cross_references(
     act_data: dict, cast_files: dict[str, Path], report: ValidationReport
 ):
@@ -658,8 +568,6 @@ def validate_distributed_architecture(project_root: Path) -> ValidationReport:
         validate_cast_level(cast_data, report)
         validate_cast_diagram(cast_data, report)
         validate_cast_nodes(cast_data, report)
-        validate_cast_state_completeness(cast_data, report)
-
     # 5. Cross-reference validation
     validate_cross_references(act_data, cast_files, report)
 
