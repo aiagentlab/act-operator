@@ -67,6 +67,31 @@ def get_compiled_subagent(compiled_graph):
     )
 ```
 
+### AsyncSubAgent (Non-blocking Background Tasks) — v0.5+
+
+Launches subagents as non-blocking background tasks. The main agent continues while subagents execute concurrently. **Requires LangSmith Deployment.**
+
+```python
+# casts.{cast_name}.modules.agents
+from deepagents import AsyncSubAgent
+
+def get_async_subagents():
+    return [
+        AsyncSubAgent(
+            name="researcher",
+            description="Background research agent",
+            graph_id="researcher",
+            # No url → ASGI transport (co-deployed)
+        ),
+        AsyncSubAgent(
+            name="coder",
+            description="Remote coding agent",
+            graph_id="coder",
+            url="https://coder-deployment.langsmith.dev",  # HTTP transport
+        ),
+    ]
+```
+
 ## Passing Subagents to create_deep_agent
 
 ```python
@@ -105,3 +130,4 @@ def set_deep_agent():
 - Subagents are stateless: they execute once and return a single result
 - Subagent context is fully isolated from the main agent
 - Multiple subagents can run concurrently
+- AsyncSubAgents run non-blocking in the background — ideal for long-running tasks that shouldn't block user interaction

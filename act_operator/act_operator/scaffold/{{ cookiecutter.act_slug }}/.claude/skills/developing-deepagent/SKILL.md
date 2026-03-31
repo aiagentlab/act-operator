@@ -1,7 +1,7 @@
 ---
 name: developing-deepagent
 description: Implements DeepAgent components using LangChain's deepagents SDK. Use when building deep agents with create_deep_agent, configuring backends/subagents/skills/memory, need DeepAgent patterns (sandbox, HITL interrupts, long-term memory, subagent spawning), or ask "implement deep agent", "add subagent", "configure backend".
-version: "2026.02.18"
+version: "2026.03.31"
 author: Proact0
 allowed-tools:
   - Bash(uv sync *)
@@ -135,6 +135,7 @@ ANTHROPIC_API_KEY=your_key
 | using the built-in general-purpose subagent | [subagents/general-purpose.md](./resources/subagents/general-purpose.md) |
 | defining custom specialized subagents | [subagents/custom-subagent.md](./resources/subagents/custom-subagent.md) |
 | wrapping a LangGraph graph as subagent | [subagents/compiled-subagent.md](./resources/subagents/compiled-subagent.md) |
+| launching non-blocking background subagents (v0.5+) | [subagents/async-subagent.md](./resources/subagents/async-subagent.md) |
 
 ### Interrupt (Human-in-the-Loop)
 
@@ -182,7 +183,7 @@ ANTHROPIC_API_KEY=your_key
 | agent needs to search files (glob/grep) | [middlewares/provider-agnostic/file-search.md](./resources/middlewares/provider-agnostic/file-search.md) |
 | modifying/removing messages at runtime | [middlewares/provider-agnostic/context-editing.md](./resources/middlewares/provider-agnostic/context-editing.md) |
 | auto-summarizing near token limits | [middlewares/provider-agnostic/summarization.md](./resources/middlewares/provider-agnostic/summarization.md) |
-| using OpenAI moderation API | [middlewares/provider-specific/openai.md](./resources/middlewares/provider-specific/openai.md) |
+| using OpenAI Responses API or moderation | [middlewares/provider-specific/openai.md](./resources/middlewares/provider-specific/openai.md) |
 | using Claude caching/bash/text-editor | [middlewares/provider-specific/anthropic.md](./resources/middlewares/provider-specific/anthropic.md) |
 | building custom before/after/wrap hooks | [middlewares/custom.md](./resources/middlewares/custom.md) |
 

@@ -62,7 +62,25 @@ def create_seed_files():
     }
 ```
 
-> **Important**: Raw strings are not supported for `files`. Always use `create_file_data()`.
+### Binary Files (v0.5+)
+
+StateBackend now supports binary file storage for PDFs, images, audio, and video:
+
+```python
+# casts.{cast_name}.modules.utils
+from deepagents.backends.utils import create_file_data
+
+def create_seed_files_with_binary():
+    """Prepare seed files including binary content."""
+    with open("logo.png", "rb") as f:
+        logo_bytes = f.read()
+    return {
+        "/config.json": create_file_data('{"key": "value"}'),
+        "/assets/logo.png": create_file_data(logo_bytes),
+    }
+```
+
+> **Important**: Raw strings are not supported for `files`. Always use `create_file_data()`. Binary content (bytes) is supported as of v0.5.
 
 ## BackendFactory Pattern
 

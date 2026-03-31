@@ -17,7 +17,7 @@ Every deep agent has access to these filesystem tools via the backend:
 | Tool | Description |
 |------|-------------|
 | `ls` | List files in a directory with metadata (size, modified time) |
-| `read_file` | Read file contents with line numbers, supports offset/limit. Also reads images as multimodal content |
+| `read_file` | Read file contents with line numbers, supports offset/limit. Reads images, PDFs, audio, and video as multimodal content |
 | `write_file` | Create new files |
 | `edit_file` | Perform exact string replacements (with global replace mode) |
 | `glob` | Find files matching patterns (e.g., `**/*.py`) |

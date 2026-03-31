@@ -57,6 +57,27 @@ def create_seeded_store():
     return store
 ```
 
+### Binary Files (v0.5+)
+
+StoreBackend supports binary file persistence for PDFs, images, audio, and video:
+
+```python
+# casts.{cast_name}.modules.utils
+from deepagents.backends.utils import create_file_data
+from langgraph.store.memory import InMemoryStore
+
+def create_seeded_store_with_binary():
+    """Create store with binary files."""
+    store = InMemoryStore()
+    with open("reference.pdf", "rb") as f:
+        store.put(
+            namespace=("filesystem",),
+            key="/docs/reference.pdf",
+            value=create_file_data(f.read()),
+        )
+    return store
+```
+
 ## BackendFactory Pattern
 
 StoreBackend requires runtime to access the store:

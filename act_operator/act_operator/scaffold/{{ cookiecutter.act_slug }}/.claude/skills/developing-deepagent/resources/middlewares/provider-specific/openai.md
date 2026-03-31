@@ -1,5 +1,69 @@
 # OpenAI Middleware
 
+## Contents
+
+- Responses API (v0.4+)
+- Content Moderation
+
+---
+
+## Responses API (v0.4+)
+
+As of v0.4, OpenAI model strings prefixed with `"openai:"` default to the **Responses API**. New configuration options control data retention and response handling.
+
+### Model String Prefix
+
+```python
+# casts.{cast_name}.modules.agents
+from deepagents import create_deep_agent
+
+def set_deep_agent():
+    return create_deep_agent(
+        model="openai:gpt-4.1",  # "openai:" prefix → Responses API by default
+        system_prompt="You are a helpful assistant.",
+    )
+```
+
+### Responses API Configuration
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `use_responses_api` | `bool` | `True` (when `"openai:"` prefix) | Explicitly enable/disable Responses API |
+| `store` | `bool` | `True` | Whether to store responses for data retention |
+| `include` | `list[str]` | `[]` | Additional response fields to include |
+
+### Disabling Data Retention
+
+```python
+# casts.{cast_name}.modules.models
+from langchain_openai import ChatOpenAI
+
+def get_openai_model_no_retention():
+    """Use Responses API without data retention."""
+    return ChatOpenAI(
+        model="gpt-4.1",
+        use_responses_api=True,
+        store=False,
+        include=["reasoning.encrypted_content"],
+    )
+```
+
+### Opting Out of Responses API
+
+```python
+# casts.{cast_name}.modules.models
+from langchain_openai import ChatOpenAI
+
+def get_openai_model_chat_completions():
+    """Force Chat Completions API instead of Responses API."""
+    return ChatOpenAI(
+        model="gpt-4.1",
+        use_responses_api=False,
+    )
+```
+
+---
+
 ## Content Moderation
 
 Moderate agent traffic using OpenAI's moderation endpoint.
@@ -31,7 +95,7 @@ def set_moderated_agent():
     )
 ```
 
-## Configuration Options
+## Moderation Configuration Options
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|

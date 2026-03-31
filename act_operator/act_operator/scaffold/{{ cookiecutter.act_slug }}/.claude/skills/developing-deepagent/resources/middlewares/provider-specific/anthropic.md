@@ -12,7 +12,7 @@ Middleware designed for Claude models.
 
 ## Prompt Caching
 
-Reduce costs and latency by caching static prompt content.
+Reduce costs and latency by caching static prompt content. As of v0.5, prompt caching performance has been improved for Anthropic models with better cache hit rates.
 
 ```python
 # casts.{cast_name}.modules.middlewares
@@ -33,6 +33,31 @@ def set_cached_agent():
         model=ChatAnthropic(model="claude-sonnet-4-5-20250929"),
         system_prompt="<Your long system prompt>",
         middleware=[get_prompt_caching_middleware()],
+    )
+```
+
+### SystemMessage with cache_control (v0.5+)
+
+For fine-grained control over which prompt segments are cached:
+
+```python
+# casts.{cast_name}.modules.prompts
+from langchain_core.messages import SystemMessage
+
+def get_cached_system_prompt(long_context: str):
+    """Use cache_control for granular caching of long context."""
+    return SystemMessage(
+        content=[
+            {
+                "type": "text",
+                "text": "You are an AI assistant tasked with analyzing documents.",
+            },
+            {
+                "type": "text",
+                "text": long_context,
+                "cache_control": {"type": "ephemeral"},
+            },
+        ]
     )
 ```
 
