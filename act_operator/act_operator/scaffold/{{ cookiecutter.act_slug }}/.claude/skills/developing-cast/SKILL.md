@@ -41,7 +41,7 @@ Implement LangGraph casts following Backend Act patterns.
 
 **If CLAUDE.md exists:**
 1. Read `/CLAUDE.md` → Act overview, find target cast
-2. Read `/casts/{cast_slug}/CLAUDE.md` → Architecture diagram, state schema, node specs
+2. Read `/casts/{cast_slug}/CLAUDE.md` → Architecture diagram, node specs
 3. Proceed to Step 2
 
 **If CLAUDE.md not found:**
@@ -195,6 +195,6 @@ Use `engineering-act`
 
 - [ ] CLAUDE.md checked (root + cast-specific if exists, skipped if not)
 - [ ] Implementation order: state → deps(option) → nodes → conditions(option) → graph
-- [ ] State/nodes match CLAUDE.md specs
+- [ ] Nodes match CLAUDE.md specs
 - [ ] Dependencies installed, env vars configured
 - [ ] Graph compiles
