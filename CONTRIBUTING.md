@@ -113,8 +113,9 @@ The Act Operator project consists of several components.
 **Location**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **Includes**:
-- `architecting-act`: Architecture design & CLAUDE.md create
-- `developing-cast`: Implementation patterns
+- `architecting-act`: Architecture design, subgraph composition strategies & CLAUDE.md generation
+- `developing-cast`: LangGraph cast implementation patterns (create_agent, nodes, memory, middleware)
+- `developing-deepagent`: DeepAgent harness patterns (create_deep_agent, subagents, backends, sandbox)
 - `testing-cast`: Testing strategies
 
 ### 4️⃣ Documentation (Separate Repository)
