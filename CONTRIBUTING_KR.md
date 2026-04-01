@@ -113,8 +113,9 @@ Act Operator 프로젝트는 여러 컴포넌트로 구성되어 있습니다.
 **위치**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **포함 스킬**:
-- `architecting-act`: 아키텍처 설계 및 CLAUDE.md 생성
-- `developing-cast`: 구현 패턴
+- `architecting-act`: 아키텍처 설계, 서브그래프 구성 전략 및 CLAUDE.md 생성
+- `developing-cast`: LangGraph Cast 구현 패턴 (create_agent, 노드, 메모리, 미들웨어)
+- `developing-deepagent`: DeepAgent 하네스 패턴 (create_deep_agent, 서브에이전트, 백엔드, 샌드박스)
 - `testing-cast`: 테스팅 전략
 
 ### 4️⃣ 문서 (별도 레포)
