@@ -141,13 +141,15 @@ OpenCode는 프로젝트 루트의 `.env`를 사용합니다(`langgraph.json`의
 
 ### 노드 구성 유형
 
-`architecting-act` 스킬이 그래프 아키텍처 설계 시 다루는 3가지 노드 유형:
+`architecting-act` 스킬이 그래프 아키텍처 설계 시 다루는 5가지 노드 유형:
 
 | 노드 유형 | 사용 시점 |
 |-----------|----------|
-| **Flat Node** | 단일 결정적 연산 (LLM 추론 루프 없음) |
+| **`START` / `END`** | 빌트인 가상 노드 — 그래프 진입과 종료를 위한 흐름 제어 마커 |
+| **`ToolNode`** | 상태 없는 도구 실행 — `AIMessage.tool_calls` 파싱, 추론 루프 없음 |
 | **`create_agent`** | 도구 + 자율 추론 루프가 필요한 서브그래프 노드/노드 내 서브그래프 |
 | **`create_deep_agent`** | 서브에이전트 위임, 백엔드, 또는 샌드박스가 필요한 서브그래프 노드/노드 내 서브그래프 |
+| **Custom Node** | `BaseNode`/`AsyncBaseNode` — 단일 결정적 연산, 사용자 정의 로직 |
 
 ### 참조 패턴 카테고리
 
