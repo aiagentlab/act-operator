@@ -122,20 +122,14 @@ Skills encode that knowledge as **living files that agents read directly**. Inst
 
 ```
 .claude/skills/
-├── architecting-act/      # Design phase harness
-│   ├── SKILL.md           # Workflow and mode selection
-│   ├── resources/         # Agentic patterns, design decision guides
-│   ├── scripts/           # Architecture validation
-│   └── templates/         # CLAUDE.md generation templates
-├── developing-cast/       # Implementation phase harness
-│   └── resources/         # 50+ patterns: core, agents, tools, memory, middleware
-├── developing-deepagent/  # DeepAgent harness
-│   └── resources/         # create_deep_agent, subagents, backends, sandbox, HITL
-├── streaming-cast/        # Streaming phase harness
-│   └── resources/         # Stream modes, subgraph streaming, SSE/WebSocket integration
-└── testing-cast/          # Testing phase harness
-    └── resources/         # Mocking strategies, fixtures, coverage guides
+├── architecting-act/      # Design phase — agentic patterns, CLAUDE.md generation
+├── developing-cast/       # Implementation phase — 50+ LangGraph patterns
+├── developing-deepagent/  # DeepAgent phase — subagents, backends, sandbox, HITL
+├── streaming-cast/        # Streaming phase — stream modes, SSE/WebSocket integration
+└── testing-cast/          # Testing phase — mocking strategies, fixtures, coverage
 ```
+
+Each skill contains a `SKILL.md` (entry point) and `resources/` (reference docs). `architecting-act` additionally includes `scripts/` (validation) and `templates/` (CLAUDE.md generation).
 
 **Available Skills**:
 

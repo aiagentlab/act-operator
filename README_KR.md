@@ -122,20 +122,14 @@ OpenCode는 프로젝트 루트의 `.env`를 사용합니다(`langgraph.json`의
 
 ```
 .claude/skills/
-├── architecting-act/      # 설계 단계 하네스
-│   ├── SKILL.md           # 워크플로우 및 모드 선택
-│   ├── resources/         # 에이전트 패턴, 설계 결정 가이드
-│   ├── scripts/           # 아키텍처 검증
-│   └── templates/         # CLAUDE.md 생성 템플릿
-├── developing-cast/       # 구현 단계 하네스
-│   └── resources/         # 50개 이상 패턴: core, agents, tools, memory, middleware
-├── developing-deepagent/  # DeepAgent 하네스
-│   └── resources/         # create_deep_agent, 서브에이전트, 백엔드, 샌드박스, HITL
-├── streaming-cast/        # 스트리밍 단계 하네스
-│   └── resources/         # 스트림 모드, 서브그래프 스트리밍, SSE/Websocket 통합
-└── testing-cast/          # 테스팅 단계 하네스
-    └── resources/         # 모킹 전략, 픽스처, 커버리지 가이드
+├── architecting-act/      # 설계 단계 — 에이전트 패턴, CLAUDE.md 생성
+├── developing-cast/       # 구현 단계 — 50개 이상 LangGraph 패턴
+├── developing-deepagent/  # DeepAgent 단계 — 서브에이전트, 백엔드, 샌드박스, HITL
+├── streaming-cast/        # 스트리밍 단계 — 스트림 모드, SSE/WebSocket 통합
+└── testing-cast/          # 테스팅 단계 — 모킹 전략, 픽스처, 커버리지
 ```
+
+각 스킬은 `SKILL.md`(진입점)와 `resources/`(참조 문서)를 포함합니다. `architecting-act`는 추가로 `scripts/`(검증)와 `templates/`(CLAUDE.md 생성)를 포함합니다.
 
 **사용 가능한 스킬**:
 
