@@ -141,13 +141,15 @@ Each skill contains a `SKILL.md` (entry point) and `resources/` (reference docs)
 
 ### Node Composition Types
 
-The `architecting-act` skill handles 3 node types when designing graph architecture:
+The `architecting-act` skill designs graph architecture around 5 node types:
 
 | Node Type | Use when |
 |-----------|----------|
-| **Flat Node** | Single deterministic operation (no LLM reasoning loop) |
-| **`create_agent`** | Subgraph node needing tools + autonomous reasoning (ReAct) loop |
-| **`create_deep_agent`** | Subgraph node needing subagent delegation, pluggable backends, or sandbox execution |
+| **`START` / `END`** | Built-in virtual nodes — flow control markers for graph entry and termination |
+| **`ToolNode`** | Stateless tool execution — parses `AIMessage.tool_calls`, no reasoning loop |
+| **`create_agent`** | Subgraph node/node-internal subgraph needing tools + autonomous reasoning (ReAct) loop |
+| **`create_deep_agent`** | Subgraph node/node-internal subgraph needing subagent delegation, backends, or sandbox |
+| **Custom Node** | `BaseNode`/`AsyncBaseNode` — single deterministic operation, user-defined logic |
 
 ### Reference Pattern Categories
 
