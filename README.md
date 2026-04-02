@@ -131,6 +131,8 @@ Skills encode that knowledge as **living files that agents read directly**. Inst
 │   └── resources/         # 50+ patterns: core, agents, tools, memory, middleware
 ├── developing-deepagent/  # DeepAgent harness
 │   └── resources/         # create_deep_agent, subagents, backends, sandbox, HITL
+├── streaming-cast/        # Streaming phase harness
+│   └── resources/         # Stream modes, subgraph streaming, SSE/WebSocket integration
 └── testing-cast/          # Testing phase harness
     └── resources/         # Mocking strategies, fixtures, coverage guides
 ```
@@ -140,6 +142,7 @@ Skills encode that knowledge as **living files that agents read directly**. Inst
 - `architecting-act` — Design graph architectures and node composition strategies. Uses an interactive question sequence to understand requirements before producing a CLAUDE.md that becomes the persistent spec for the implementation phase. Supports 4 modes: initial design, add cast, extract sub-cast, redesign cast.
 - `developing-cast` — Implement LangGraph casts (state, nodes, agents with `create_agent`, tools, memory, middlewares, graph assembly). Reads CLAUDE.md as its source of truth.
 - `developing-deepagent` — Implement DeepAgent harnesses (`create_deep_agent`, subagents, backends, sandbox execution, HITL). Used when a cast node requires multi-step planning or subagent delegation.
+- `streaming-cast` — Implement LangGraph v2 streaming for graphs with subgraphs and agents. Covers stream modes (values, messages, updates, custom, events), StreamWriter, subgraph/agent streaming with namespace parsing, and transport integration (SSE, WebSocket).
 - `testing-cast` — Write pytest tests with LLM mocking strategies. Covers node-level unit tests and graph integration tests.
 
 ## The CLAUDE.md Feedback Loop
@@ -168,6 +171,7 @@ sequenceDiagram
         participant AA as architecting-act
         participant DC as developing-cast
         participant DD as developing-deepagent
+        participant SC as streaming-cast
         participant TC as testing-cast
     end
     participant P as Act Project
@@ -190,6 +194,12 @@ sequenceDiagram
     DD->>P: backend → tools → subagents → middleware → agent assembly
     end
 
+    opt Streaming required
+    U->>SC: "Add streaming to the chatbot cast"
+    SC->>P: Read graph.py (graph structure)
+    SC->>P: Stream mode selection → StreamWriter → subgraph/agent streaming
+    end
+
     Note over U,P: Phase 3 — Testing (Harness: mocking strategies + coverage guides)
     U->>TC: "Write tests for the chatbot cast"
     TC->>P: Read implementation code
@@ -210,7 +220,10 @@ sequenceDiagram
 3. Implement        → "Implement the chatbot based on CLAUDE.md"
    (developing-cast: reads CLAUDE.md → implements state/nodes/agents/graph)
 
-4. Test             → "Write comprehensive tests for the chatbot"
+4. Add Streaming    → "Add streaming to the chatbot cast"
+   (streaming-cast: stream mode selection → token streaming, subgraph streaming)
+
+5. Test             → "Write comprehensive tests for the chatbot"
    (testing-cast: LLM mocking + node unit tests + graph integration tests)
 ```
 
@@ -262,6 +275,7 @@ my_workflow/
 │       ├── architecting-act/      # Design phase: patterns, templates, validation
 │       ├── developing-cast/       # Implementation phase: 50+ reference patterns
 │       ├── developing-deepagent/  # DeepAgent phase: backends, subagents, sandbox
+│       ├── streaming-cast/        # Streaming phase: stream modes, subgraph streaming
 │       └── testing-cast/          # Testing phase: mocking, fixtures, coverage
 ├── casts/
 │   ├── base_node.py              # Base node class (sync/async, signature validation)
