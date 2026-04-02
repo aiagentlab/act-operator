@@ -105,7 +105,7 @@ See [subgraph/nested-streaming.md](./resources/subgraph/nested-streaming.md).
 
 ### Step 5: Wire to Transport (SSE or WebSocket)
 
-See [patterns/frontend-integration.md](./resources/patterns/frontend-integration.md). SSE is the LangChain ecosystem recommended transport.
+See [patterns/integration.md](./resources/patterns/integration.md). SSE is the LangChain ecosystem recommended transport.
 
 ---
 
