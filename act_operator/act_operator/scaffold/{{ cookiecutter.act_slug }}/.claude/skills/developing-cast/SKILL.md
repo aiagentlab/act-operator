@@ -99,6 +99,7 @@ Use `engineering-act`
 |-------------|----------|
 | defining graph state with TypedDict | [core/state.md](./resources/core/state.md) |
 | implementing sync/async node classes | [core/node.md](./resources/core/node.md) |
+| using prebuilt ToolNode for tool execution | [core/tool-node.md](./resources/core/tool-node.md) |
 | setting up edges or conditional routing | [core/edge.md](./resources/core/edge.md) |
 | assembling StateGraph and compiling | [core/graph.md](./resources/core/graph.md) |
 | reusing graphs as subgraphs | [core/subgraph.md](./resources/core/subgraph.md) |

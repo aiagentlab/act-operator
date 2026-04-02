@@ -135,7 +135,11 @@ class DebugNode(BaseNode):
 
 ---
 
-## Node with Agent
+## Node with Agent (Call Inside Node)
+
+Invoke a `create_agent` subgraph inside a custom node. Use this when the parent and subgraph have **different state schemas** or when custom pre/post-processing is needed around the agent call.
+
+For adding a compiled agent **directly as a graph node** (shared state), see subgraph.md § "Method 2: Add as Node".
 
 ```python
 # casts/{cast_name}/modules/nodes.py
@@ -148,9 +152,11 @@ class AgentNode(BaseNode):
         self.agent = set_sample_agent()
 
     def execute(self, state):
+        # Transform parent state → agent input
         result = self.agent.invoke({
             "messages": [{"role": "user", "content": state["query"]}]
         })
+        # Transform agent output → parent state update
         return {"messages": result["messages"]}
 ```
 

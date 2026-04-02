@@ -129,7 +129,7 @@ Design and manage Act (project) and Cast (graph) architectures through dynamic, 
    - Read `/casts/{cast_slug}/modules/*.py` → State, nodes, agents, tools, conditions
    - Read `/casts/{cast_slug}/CLAUDE.md` if exists → Current architecture spec
 2. **Summarize current architecture** → Present findings to user
-   - List discovered nodes (flat / `create_agent` subgraph / `create_deep_agent` / orchestrator)
+   - List discovered nodes (custom / ToolNode / `create_agent` subgraph / `create_deep_agent`)
    - List discovered edges and conditional routing
    - Identify pattern (Sequential, Branching, Cyclic, Coordinator, etc.)
    - Note any discrepancies between CLAUDE.md (if exists) and actual code
@@ -209,32 +209,34 @@ Design and manage Act (project) and Cast (graph) architectures through dynamic, 
 
 ### 2. Node Composition Strategy
 
-**For each node, determine if it should be a flat node, agent subgraph, or orchestrator.**
+**For each node, determine its type from the 5 node types.**
 
-Refer to [agentic-design-patterns.md](./resources/agentic-design-patterns.md) § "Subgraph vs Flat Node Decision" and [node-specification.md](./resources/design/node-specification.md) § "Node Types".
+Refer to [agentic-design-patterns.md](./resources/agentic-design-patterns.md) § "Node Type Decision" and [node-specification.md](./resources/design/node-specification.md) § "Node Types".
 
-**AskUserQuestion Format** (for nodes where agent capability is detected):
+**AskUserQuestion Format** (for nodes where the type is ambiguous):
 ```json
 {
   "question": "How should this node be composed?",
   "header": "Node Composition: {NodeName}",
   "options": [
-    {"label": "Flat Node", "description": "Single deterministic function, no tools/reasoning needed"},
-    {"label": "create_agent Subgraph", "description": "Tool-calling agent with reasoning loop, used as a node"},
-    {"label": "create_deep_agent", "description": "Complex agent with subagent delegation, sandbox, long-term memory"},
-    {"label": "Orchestrator Node", "description": "Node function that internally invokes agent subgraph(s)"}
+    {"label": "Custom Node (BaseNode)", "description": "Single deterministic function, no tools/reasoning needed"},
+    {"label": "ToolNode", "description": "Stateless tool execution — parses AIMessage.tool_calls, no reasoning loop"},
+    {"label": "create_agent Subgraph", "description": "Tool-calling agent with autonomous ReAct reasoning loop"},
+    {"label": "create_deep_agent", "description": "Complex agent with subagent delegation, sandbox, long-term memory"}
   ],
   "multiSelect": false
 }
 ```
 
-**Skip this question** when the composition is obvious (e.g., simple data transform → flat node, tool-heavy autonomous task → subgraph).
+**Skip this question** when the composition is obvious (e.g., simple data transform → custom node, model tool calls without reasoning → ToolNode, tool-heavy autonomous task → create_agent subgraph).
+
+**Note:** START/END are always present — they are structural constants, not design choices.
 
 ### 3. Node Specification
 
 **Ask pattern-specific question** using [node-specification.md](./resources/design/node-specification.md):
 
-**YOU design nodes** (single responsibility, CamelCase naming). Use the appropriate output format per node type (flat / agent subgraph / deep agent / orchestrator).
+**YOU design nodes** (single responsibility, CamelCase naming). Use the appropriate output format per node type (custom / ToolNode / agent subgraph / deep agent).
 
 ### 4. Architecture Diagram
 

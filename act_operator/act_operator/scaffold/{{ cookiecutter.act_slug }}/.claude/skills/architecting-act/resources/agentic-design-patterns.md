@@ -512,21 +512,22 @@ graph LR
 
 ---
 
-### Subgraph vs Flat Node Decision
+### Node Type Decision
 
-| Criterion | Flat Node | Subgraph (`create_agent`) | DeepAgent (`create_deep_agent`) |
-|-----------|-----------|---------------------------|--------------------------------|
-| Has its own tool set | No | Yes | Yes + subagent delegation |
-| Needs internal reasoning loop | No | Yes | Yes + planning |
-| Reusable across casts | Unlikely | Yes | Yes |
-| Internal complexity | Low (single function) | Medium (tool-calling loop) | High (multi-step + subagents) |
-| State isolation needed | No | Yes | Yes |
-| Sandbox execution | No | No | Yes |
-| Long-term memory | No | No | Yes |
+| Criterion | Custom Node | ToolNode | `create_agent` | `create_deep_agent` |
+|-----------|-------------|----------|----------------|---------------------|
+| Has its own tool set | No | Yes (executes calls) | Yes (binds tools) | Yes + subagent delegation |
+| Internal reasoning loop | No | No | Yes (ReAct) | Yes + planning |
+| Reusable across casts | Unlikely | Yes | Yes | Yes |
+| Internal complexity | Low (single function) | Low (stateless dispatch) | Medium (tool-calling loop) | High (multi-step + subagents) |
+| State isolation needed | No | No | Yes | Yes |
+| Sandbox execution | No | No | No | Yes |
+| Long-term memory | No | No | No | Yes |
 
 **Rule of thumb:**
-- Single deterministic operation → **flat node**
-- Needs tools + reasoning loop → **`create_agent` subgraph**
+- Single deterministic operation → **Custom Node** (BaseNode/AsyncBaseNode)
+- Model outputs tool_calls, needs stateless execution → **ToolNode**
+- Needs tools + autonomous reasoning loop → **`create_agent` subgraph**
 - Needs subagent delegation, sandbox, or long-term memory → **`create_deep_agent`**
 
 ---
