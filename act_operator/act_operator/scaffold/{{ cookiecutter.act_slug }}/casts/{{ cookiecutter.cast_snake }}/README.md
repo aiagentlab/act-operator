@@ -1,5 +1,4 @@
-{% if cookiecutter.language == 'en' %}
-# {{ cookiecutter.cast_name }} Module
+{% if cookiecutter.language == 'en' %}# {{ cookiecutter.cast_name }} Module
 
 ## Overview
 This module defines the {{ cookiecutter.cast_name }} LangGraph graph responsible for running and extracting insights.
@@ -33,14 +32,18 @@ initial_state = {
 result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
 ```
 
+## Dependencies
+To add a dependency to this package, use:
+```bash
+uv add <package_name> --package {{ cookiecutter.cast_slug }}
+```
+
 ## Extending
 1. Add new state in `modules/state.py`
 2. Add new node classes in `modules/nodes.py`
 3. Define agents/conditions/middlewares/tools/prompts/models/utils if needed
 4. Wire nodes into the graph in `graph.py`
-
-{% else %}
-# {{ cookiecutter.cast_name }} 모듈 ({{ cookiecutter.cast_name }} Module)
+{% else %}# {{ cookiecutter.cast_name }} 모듈 ({{ cookiecutter.cast_name }} Module)
 
 ## 개요
 이 모듈은 {{ cookiecutter.act_name }} 의 {{ cookiecutter.cast_name }} 진행 및 통찰 추출을 담당하는 LangGraph Graph입니다.
@@ -72,6 +75,12 @@ initial_state = {
 }
 
 result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
+```
+
+## 의존성 추가
+이 패키지에 종속성을 추가하려면 아래 명령어를 사용합니다:
+```bash
+uv add <패키지명> --package {{ cookiecutter.cast_slug }}
 ```
 
 ## 확장 방법
