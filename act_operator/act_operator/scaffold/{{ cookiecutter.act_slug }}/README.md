@@ -1,4 +1,5 @@
-{% if cookiecutter.language == 'en' %}# Act: {{ cookiecutter.act_name }}
+{% if cookiecutter.language == 'en' %}
+# Act: {{ cookiecutter.act_name }}
 
 A LangGraph-based Act project scaffolded with Act Operator.
 

@@ -1,4 +1,5 @@
-{% if cookiecutter.language == 'en' %}# {{ cookiecutter.cast_name }} Module
+{% if cookiecutter.language == 'en' %}
+# {{ cookiecutter.cast_name }} Module
 
 ## Overview
 This module defines the {{ cookiecutter.cast_name }} LangGraph graph responsible for running and extracting insights.
