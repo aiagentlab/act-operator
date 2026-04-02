@@ -145,6 +145,30 @@ Skills encode that knowledge as **living files that agents read directly**. Inst
 - `streaming-cast` — Implement LangGraph v2 streaming for graphs with subgraphs and agents. Covers stream modes (values, messages, updates, custom, events), StreamWriter, subgraph/agent streaming with namespace parsing, and transport integration (SSE, WebSocket).
 - `testing-cast` — Write pytest tests with LLM mocking strategies. Covers node-level unit tests and graph integration tests.
 
+### Node Composition Types
+
+The `architecting-act` skill handles 4 node types when designing graph architecture:
+
+| Node Type | Use when |
+|-----------|----------|
+| **Flat Node** | Single deterministic operation (no LLM reasoning loop) |
+| **`create_agent` Subgraph** | Node needs tools + autonomous reasoning loop |
+| **`create_deep_agent`** | Node needs subagent delegation, backends, or sandbox |
+| **Orchestrator Node** | Custom pre/post-processing around one or more agent subgraphs |
+
+### Reference Pattern Categories
+
+The `developing-cast` skill includes patterns for every major LangGraph concern:
+
+| Category | Patterns |
+|----------|----------|
+| **Core** | State, sync/async nodes, conditional edges, subgraph composition |
+| **Agents** | `create_agent` with tools, structured output, multi-agent networks |
+| **Memory** | Short-term (conversation history, trimming, summarization), long-term (Store API) |
+| **Middleware** | Retry, fallback models, guardrails, call limits, human-in-the-loop, context editing |
+| **Observability** | LangSmith integration, structured logging |
+| **Integrations** | Embeddings, vector stores (FAISS/Pinecone/Chroma), text splitters |
+
 ## The CLAUDE.md Feedback Loop
 
 The key to keeping agents aligned across sessions is the `CLAUDE.md` spec. `architecting-act` generates it; `developing-cast` reads it.
@@ -351,77 +375,6 @@ sequenceDiagram
     G->>G: Extract OutputState → Result
 ```
 
-## Usage
-
-### Create New Cast
-
-```bash
-uv run act cast
-# Interactive prompts for cast name and configuration
-```
-
-### Add Dependencies
-
-```bash
-# Monorepo-level (shared across all casts)
-uv add langchain-openai
-
-# Cast-specific
-uv add --package chatbot langchain-anthropic
-
-# Development tools
-uv add --dev pytest-mock
-```
-
-### Run Development Server
-
-```bash
-uv run langgraph dev
-```
-
-LangGraph Studio opens at `http://localhost:8000` for visual graph debugging.
-
-## Key Features
-
-### Raises the Floor
-
-The harness makes LangGraph expertise available to every developer on the team, not just those who have accumulated it through experience. The scaffolding, skills, and CLAUDE.md loop standardize the context the agent operates in — so output quality doesn't vary with who's prompting.
-
-### Structured Modularity
-
-Each cast follows a clear module separation:
-
-- **state.py**: TypedDict state schemas (InputState, OutputState, OverallState)
-- **nodes.py**: Business logic as BaseNode subclasses
-- **agents.py**: `create_agent` / `create_deep_agent` subgraph configurations
-- **tools.py**: Tool functions and MCP adapters
-- **conditions.py**: Routing logic between nodes
-- **graph.py**: Final graph assembly and compilation
-
-### 50+ Reference Patterns
-
-The `developing-cast` skill includes patterns for every major LangGraph concern:
-
-- **Core**: State, sync/async nodes, conditional edges, subgraph composition
-- **Agents**: `create_agent` with tools, structured output, multi-agent networks
-- **Memory**: Short-term (conversation history, trimming, summarization) and long-term (Store API)
-- **Middleware — Reliability**: Model retry, tool retry, fallback models
-- **Middleware — Safety**: Guardrails, model call limits, tool call limits, human-in-the-loop
-- **Middleware — Context**: Context editing, auto-summarization near token limits
-- **Observability**: LangSmith integration, structured logging
-- **Integrations**: Embeddings, vector stores (FAISS/Pinecone/Chroma), text splitters
-
-### Production-Ready Node Composition
-
-The architecture skill handles 4 node types:
-
-| Node Type | Use when |
-|-----------|----------|
-| **Flat Node** | Single deterministic operation (no LLM reasoning loop) |
-| **`create_agent` Subgraph** | Node needs tools + autonomous reasoning loop |
-| **`create_deep_agent`** | Node needs subagent delegation, backends, or sandbox |
-| **Orchestrator Node** | Custom pre/post-processing around one or more agent subgraphs |
-
 ## CLI Commands
 
 ```bash
@@ -436,6 +389,8 @@ act cast [OPTIONS]
   --cast-name TEXT      Cast name
   --path PATH           Act project directory
 ```
+
+After scaffolding, see `TEMPLATE_README.md` in your generated project for detailed usage — dependency management, development server, graph registry configuration, and more.
 
 ## Contributing
 

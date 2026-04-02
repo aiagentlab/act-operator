@@ -145,6 +145,30 @@ OpenCode는 프로젝트 루트의 `.env`를 사용합니다(`langgraph.json`의
 - `streaming-cast` — 서브그래프와 에이전트가 포함된 그래프를 위한 LangGraph v2 스트리밍 구현. 스트림 모드 (values, messages, updates, custom, events), StreamWriter, 네임스페이스 파싱을 통한 서브그래프/에이전트 스트리밍, 전송 계층 통합 (SSE, WebSocket)을 커버합니다.
 - `testing-cast` — LLM 모킹 전략을 사용한 pytest 테스트 작성. 노드 레벨 단위 테스트와 그래프 통합 테스트를 커버합니다.
 
+### 노드 구성 유형
+
+`architecting-act` 스킬이 그래프 아키텍처 설계 시 다루는 4가지 노드 유형:
+
+| 노드 유형 | 사용 시점 |
+|-----------|----------|
+| **Flat Node** | 단일 결정적 연산 (LLM 추론 루프 없음) |
+| **`create_agent` Subgraph** | 도구 + 자율 추론 루프가 필요한 노드 |
+| **`create_deep_agent`** | 서브에이전트 위임, 백엔드, 또는 샌드박스가 필요한 노드 |
+| **Orchestrator Node** | 하나 이상의 에이전트 서브그래프에 대한 커스텀 전/후처리 |
+
+### 참조 패턴 카테고리
+
+`developing-cast` 스킬은 모든 주요 LangGraph 관심사에 대한 패턴을 포함합니다:
+
+| 카테고리 | 패턴 |
+|----------|------|
+| **Core** | State, 동기/비동기 노드, 조건부 엣지, 서브그래프 구성 |
+| **Agents** | 도구를 가진 `create_agent`, 구조화된 출력, 멀티 에이전트 네트워크 |
+| **Memory** | 단기 (대화 기록, 트리밍, 요약), 장기 (Store API) |
+| **Middleware** | 재시도, 폴백 모델, 가드레일, 호출 제한, HITL, 컨텍스트 편집 |
+| **관찰성** | LangSmith 통합, 구조화된 로깅 |
+| **통합** | 임베딩, 벡터 스토어 (FAISS/Pinecone/Chroma), 텍스트 스플리터 |
+
 ## CLAUDE.md 피드백 루프
 
 세션 간 에이전트를 정렬 상태로 유지하는 핵심은 `CLAUDE.md` 명세입니다. `architecting-act`가 생성하고, `developing-cast`가 읽습니다.
@@ -351,66 +375,6 @@ sequenceDiagram
     G->>G: OutputState 추출 → 결과
 ```
 
-## 사용법
-
-### 새로운 Cast 생성
-
-```bash
-uv run act cast
-# 캐스트 이름과 설정에 대한 대화형 프롬프트
-```
-
-### 의존성 추가
-
-```bash
-# 모노레포 레벨 (모든 Cast에서 공유)
-uv add langchain-openai
-
-# Cast별
-uv add --package chatbot langchain-anthropic
-
-# 개발 도구
-uv add --dev pytest-mock
-```
-
-### 개발 서버 실행
-
-```bash
-uv run langgraph dev
-```
-
-LangGraph Studio가 `http://localhost:8000`에서 열리며 시각적 그래프 디버깅이 가능합니다.
-
-## 주요 기능
-
-### 최소 수준 향상 (Raising the Floor)
-
-하네스는 경험을 통해 축적한 개발자뿐만 아니라 팀의 모든 개발자에게 LangGraph 전문 지식을 제공합니다. 스캐폴딩, 스킬, CLAUDE.md 루프가 에이전트가 작동하는 컨텍스트를 표준화합니다 — 따라서 출력 품질이 프롬프트를 입력하는 사람에 따라 달라지지 않습니다.
-
-### 구조화된 모듈성
-
-각 Cast는 명확한 모듈 분리를 따릅니다:
-
-- **state.py**: TypedDict 상태 스키마 (InputState, OutputState, OverallState)
-- **nodes.py**: BaseNode 서브클래스로서의 비즈니스 로직
-- **agents.py**: `create_agent` / `create_deep_agent` 서브그래프 설정
-- **tools.py**: 도구 함수와 MCP 어댑터
-- **conditions.py**: 노드 간 라우팅 로직
-- **graph.py**: 최종 그래프 조립 및 컴파일
-
-### 50개 이상의 참조 패턴
-
-`developing-cast` 스킬은 모든 주요 LangGraph 관심사에 대한 패턴을 포함합니다:
-
-- **Core**: State, 동기/비동기 노드, 조건부 엣지, 서브그래프 구성
-- **Agents**: 도구를 가진 `create_agent`, 구조화된 출력, 멀티 에이전트 네트워크
-- **Memory**: 단기 (대화 기록, 트리밍, 요약)와 장기 (Store API)
-- **Middleware — 신뢰성**: 모델 재시도, 도구 재시도, 폴백 모델
-- **Middleware — 안전성**: 가드레일, 모델 호출 제한, 도구 호출 제한, HITL
-- **Middleware — 컨텍스트**: 컨텍스트 편집, 토큰 한도 근처 자동 요약
-- **관찰성**: LangSmith 통합, 구조화된 로깅
-- **통합**: 임베딩, 벡터 스토어 (FAISS/Pinecone/Chroma), 텍스트 스플리터
-
 ## CLI 명령어
 
 ```bash
@@ -425,6 +389,8 @@ act cast [OPTIONS]
   --cast-name TEXT      Cast 이름
   --path PATH           Act 프로젝트 디렉토리
 ```
+
+스캐폴딩 후 자세한 사용법 — 의존성 관리, 개발 서버, 그래프 레지스트리 설정 등 — 은 생성된 프로젝트 내 `TEMPLATE_README.md`를 참조하세요.
 
 ## 기여하기
 
