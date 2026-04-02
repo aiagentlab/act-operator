@@ -122,20 +122,14 @@ Skills encode that knowledge as **living files that agents read directly**. Inst
 
 ```
 .claude/skills/
-├── architecting-act/      # Design phase harness
-│   ├── SKILL.md           # Workflow and mode selection
-│   ├── resources/         # Agentic patterns, design decision guides
-│   ├── scripts/           # Architecture validation
-│   └── templates/         # CLAUDE.md generation templates
-├── developing-cast/       # Implementation phase harness
-│   └── resources/         # 50+ patterns: core, agents, tools, memory, middleware
-├── developing-deepagent/  # DeepAgent harness
-│   └── resources/         # create_deep_agent, subagents, backends, sandbox, HITL
-├── streaming-cast/        # Streaming phase harness
-│   └── resources/         # Stream modes, subgraph streaming, SSE/WebSocket integration
-└── testing-cast/          # Testing phase harness
-    └── resources/         # Mocking strategies, fixtures, coverage guides
+├── architecting-act/      # Design phase — agentic patterns, CLAUDE.md generation
+├── developing-cast/       # Implementation phase — 50+ LangGraph patterns
+├── developing-deepagent/  # DeepAgent phase — subagents, backends, sandbox, HITL
+├── streaming-cast/        # Streaming phase — stream modes, SSE/WebSocket integration
+└── testing-cast/          # Testing phase — mocking strategies, fixtures, coverage
 ```
+
+Each skill contains a `SKILL.md` (entry point) and `resources/` (reference docs). `architecting-act` additionally includes `scripts/` (validation) and `templates/` (CLAUDE.md generation).
 
 **Available Skills**:
 
@@ -144,6 +138,29 @@ Skills encode that knowledge as **living files that agents read directly**. Inst
 - `developing-deepagent` — Implement DeepAgent harnesses (`create_deep_agent`, subagents, backends, sandbox execution, HITL). Used when a cast node requires multi-step planning or subagent delegation.
 - `streaming-cast` — Implement LangGraph v2 streaming for graphs with subgraphs and agents. Covers stream modes (values, messages, updates, custom, events), StreamWriter, subgraph/agent streaming with namespace parsing, and transport integration (SSE, WebSocket).
 - `testing-cast` — Write pytest tests with LLM mocking strategies. Covers node-level unit tests and graph integration tests.
+
+### Node Composition Types
+
+The `architecting-act` skill handles 3 node types when designing graph architecture:
+
+| Node Type | Use when |
+|-----------|----------|
+| **Flat Node** | Single deterministic operation (no LLM reasoning loop) |
+| **`create_agent`** | Subgraph node needing tools + autonomous reasoning (ReAct) loop |
+| **`create_deep_agent`** | Subgraph node needing subagent delegation, pluggable backends, or sandbox execution |
+
+### Reference Pattern Categories
+
+The `developing-cast` skill includes patterns for every major LangGraph concern:
+
+| Category | Patterns |
+|----------|----------|
+| **Core** | State, sync/async nodes, conditional edges, subgraph composition |
+| **Agents** | `create_agent` with tools, structured output, multi-agent networks |
+| **Memory** | Short-term (conversation history, trimming, summarization), long-term (Store API) |
+| **Middleware** | Retry, fallback models, guardrails, call limits, human-in-the-loop, context editing |
+| **Observability** | LangSmith integration, structured logging |
+| **Integrations** | Embeddings, vector stores (FAISS/Pinecone/Chroma), text splitters |
 
 ## The CLAUDE.md Feedback Loop
 
@@ -351,77 +368,6 @@ sequenceDiagram
     G->>G: Extract OutputState → Result
 ```
 
-## Usage
-
-### Create New Cast
-
-```bash
-uv run act cast
-# Interactive prompts for cast name and configuration
-```
-
-### Add Dependencies
-
-```bash
-# Monorepo-level (shared across all casts)
-uv add langchain-openai
-
-# Cast-specific
-uv add --package chatbot langchain-anthropic
-
-# Development tools
-uv add --dev pytest-mock
-```
-
-### Run Development Server
-
-```bash
-uv run langgraph dev
-```
-
-LangGraph Studio opens at `http://localhost:8000` for visual graph debugging.
-
-## Key Features
-
-### Raises the Floor
-
-The harness makes LangGraph expertise available to every developer on the team, not just those who have accumulated it through experience. The scaffolding, skills, and CLAUDE.md loop standardize the context the agent operates in — so output quality doesn't vary with who's prompting.
-
-### Structured Modularity
-
-Each cast follows a clear module separation:
-
-- **state.py**: TypedDict state schemas (InputState, OutputState, OverallState)
-- **nodes.py**: Business logic as BaseNode subclasses
-- **agents.py**: `create_agent` / `create_deep_agent` subgraph configurations
-- **tools.py**: Tool functions and MCP adapters
-- **conditions.py**: Routing logic between nodes
-- **graph.py**: Final graph assembly and compilation
-
-### 50+ Reference Patterns
-
-The `developing-cast` skill includes patterns for every major LangGraph concern:
-
-- **Core**: State, sync/async nodes, conditional edges, subgraph composition
-- **Agents**: `create_agent` with tools, structured output, multi-agent networks
-- **Memory**: Short-term (conversation history, trimming, summarization) and long-term (Store API)
-- **Middleware — Reliability**: Model retry, tool retry, fallback models
-- **Middleware — Safety**: Guardrails, model call limits, tool call limits, human-in-the-loop
-- **Middleware — Context**: Context editing, auto-summarization near token limits
-- **Observability**: LangSmith integration, structured logging
-- **Integrations**: Embeddings, vector stores (FAISS/Pinecone/Chroma), text splitters
-
-### Production-Ready Node Composition
-
-The architecture skill handles 4 node types:
-
-| Node Type | Use when |
-|-----------|----------|
-| **Flat Node** | Single deterministic operation (no LLM reasoning loop) |
-| **`create_agent` Subgraph** | Node needs tools + autonomous reasoning loop |
-| **`create_deep_agent`** | Node needs subagent delegation, backends, or sandbox |
-| **Orchestrator Node** | Custom pre/post-processing around one or more agent subgraphs |
-
 ## CLI Commands
 
 ```bash
@@ -436,6 +382,8 @@ act cast [OPTIONS]
   --cast-name TEXT      Cast name
   --path PATH           Act project directory
 ```
+
+After scaffolding, see `TEMPLATE_README.md` in your generated project for detailed usage — dependency management, development server, graph registry configuration, and more.
 
 ## Contributing
 

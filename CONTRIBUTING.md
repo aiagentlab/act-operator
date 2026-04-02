@@ -307,7 +307,7 @@ chore(deps): upgrade dependencies
 
 **Allowed scopes** (see [pr_lint.yml](.github/workflows/pr_lint.yml)):
 - `cli`, `scaffold`, `utils`, `docs`, `tests`
-- `workflow`, `cookiecutter`, `ci`, `deps`
+- `workflow`, `cookiecutter`, `ci`, `deps`, `skills`
 
 ---
 

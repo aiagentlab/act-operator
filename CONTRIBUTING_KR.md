@@ -307,7 +307,7 @@ chore(deps): upgrade dependencies
 
 **허용된 scope** ([pr_lint.yml](.github/workflows/pr_lint.yml) 참조):
 - `cli`, `scaffold`, `utils`, `docs`, `tests`
-- `workflow`, `cookiecutter`, `ci`, `deps`
+- `workflow`, `cookiecutter`, `ci`, `deps`, `skills`
 
 ---
 
