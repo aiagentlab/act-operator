@@ -337,8 +337,7 @@ The structure and tooling of this monorepo template are licensed under the Proac
 
 ---
 
-**This template is powered by [Proact0](https://www.proact0.org/)**
-{% else %}# Act Template
+**This template is powered by [Proact0](https://www.proact0.org/)**{% else %}# Act Template
 
 이 문서는 본 스캐폴드(템플릿)로 생성된 프로젝트를 빠르게 이해하고, 올바르게 사용하는 방법을 안내합니다.
 

@@ -1,5 +1,4 @@
-{% if cookiecutter.language == 'en' %}
-# {{ cookiecutter.cast_name }} Module
+{% if cookiecutter.language == 'en' %}# {{ cookiecutter.cast_name }} Module
 
 ## Overview
 This module defines the {{ cookiecutter.cast_name }} LangGraph graph responsible for running and extracting insights.
@@ -37,10 +36,7 @@ result = {{ cookiecutter.cast_snake }}_graph().invoke(initial_state)
 1. Add new state in `modules/state.py`
 2. Add new node classes in `modules/nodes.py`
 3. Define agents/conditions/middlewares/tools/prompts/models/utils if needed
-4. Wire nodes into the graph in `graph.py`
-
-{% else %}
-# {{ cookiecutter.cast_name }} 모듈 ({{ cookiecutter.cast_name }} Module)
+4. Wire nodes into the graph in `graph.py`{% else %}# {{ cookiecutter.cast_name }} 모듈 ({{ cookiecutter.cast_name }} Module)
 
 ## 개요
 이 모듈은 {{ cookiecutter.act_name }} 의 {{ cookiecutter.cast_name }} 진행 및 통찰 추출을 담당하는 LangGraph Graph입니다.
