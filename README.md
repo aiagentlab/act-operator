@@ -141,14 +141,13 @@ Each skill contains a `SKILL.md` (entry point) and `resources/` (reference docs)
 
 ### Node Composition Types
 
-The `architecting-act` skill handles 4 node types when designing graph architecture:
+The `architecting-act` skill handles 3 node types when designing graph architecture:
 
 | Node Type | Use when |
 |-----------|----------|
 | **Flat Node** | Single deterministic operation (no LLM reasoning loop) |
-| **`create_agent` Subgraph** | Node needs tools + autonomous reasoning loop |
-| **`create_deep_agent`** | Node needs subagent delegation, backends, or sandbox |
-| **Orchestrator Node** | Custom pre/post-processing around one or more agent subgraphs |
+| **`create_agent`** | Subgraph node needing tools + autonomous reasoning (ReAct) loop |
+| **`create_deep_agent`** | Subgraph node needing subagent delegation, pluggable backends, or sandbox execution |
 
 ### Reference Pattern Categories
 
