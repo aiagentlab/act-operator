@@ -1,5 +1,4 @@
-{% if cookiecutter.language == 'en' %}
-# Act Template
+{% if cookiecutter.language == 'en' %}# Act Template
 
 This document provides a quick guide to understand and properly use the project generated from this scaffold (template).
 
