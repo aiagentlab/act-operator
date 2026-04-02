@@ -131,6 +131,8 @@ OpenCode는 프로젝트 루트의 `.env`를 사용합니다(`langgraph.json`의
 │   └── resources/         # 50개 이상 패턴: core, agents, tools, memory, middleware
 ├── developing-deepagent/  # DeepAgent 하네스
 │   └── resources/         # create_deep_agent, 서브에이전트, 백엔드, 샌드박스, HITL
+├── streaming-cast/        # 스트리밍 단계 하네스
+│   └── resources/         # 스트림 모드, 서브그래프 스트리밍, SSE/Websocket 통합
 └── testing-cast/          # 테스팅 단계 하네스
     └── resources/         # 모킹 전략, 픽스처, 커버리지 가이드
 ```
@@ -140,6 +142,7 @@ OpenCode는 프로젝트 루트의 `.env`를 사용합니다(`langgraph.json`의
 - `architecting-act` — 그래프 아키텍처 및 노드 구성 전략 설계. 요구사항을 파악하기 위한 대화형 질문 시퀀스를 사용하고, 구현 단계의 지속적인 명세가 되는 CLAUDE.md를 출력합니다. 4가지 모드: 초기 설계, Cast 추가, Sub-Cast 추출, Cast 재설계.
 - `developing-cast` — LangGraph Cast 구현 (state, nodes, `create_agent` 에이전트, tools, memory, middlewares, graph 조립). CLAUDE.md를 단일 진실 소스(Source of Truth)로 읽습니다.
 - `developing-deepagent` — DeepAgent 하네스 구현 (`create_deep_agent`, 서브에이전트, 백엔드, 샌드박스 실행, HITL). Cast 노드에 다단계 계획이나 서브에이전트 위임이 필요한 경우 사용합니다.
+- `streaming-cast` — 서브그래프와 에이전트가 포함된 그래프를 위한 LangGraph v2 스트리밍 구현. 스트림 모드 (values, messages, updates, custom, events), StreamWriter, 네임스페이스 파싱을 통한 서브그래프/에이전트 스트리밍, 전송 계층 통합 (SSE, WebSocket)을 커버합니다.
 - `testing-cast` — LLM 모킹 전략을 사용한 pytest 테스트 작성. 노드 레벨 단위 테스트와 그래프 통합 테스트를 커버합니다.
 
 ## CLAUDE.md 피드백 루프
@@ -168,6 +171,7 @@ sequenceDiagram
         participant AA as architecting-act
         participant DC as developing-cast
         participant DD as developing-deepagent
+        participant SC as streaming-cast
         participant TC as testing-cast
     end
     participant P as Act Project
@@ -190,6 +194,12 @@ sequenceDiagram
     DD->>P: backend → tools → subagents → middleware → agent assembly
     end
 
+    opt 스트리밍 필요
+    U->>SC: "챗봇 Cast에 스트리밍 추가"
+    SC->>P: graph.py 읽기 (그래프 구조)
+    SC->>P: 스트림 모드 선택 → StreamWriter → 서브그래프/에이전트 스트리밍
+    end
+
     Note over U,P: 3단계 — 테스팅 (하네스: 모킹 전략 + 커버리지 가이드)
     U->>TC: "챗봇 Cast 테스트 작성"
     TC->>P: 구현 코드 읽기
@@ -210,7 +220,10 @@ sequenceDiagram
 3. 구현           → "CLAUDE.md 기반으로 챗봇 구현"
    (developing-cast: CLAUDE.md 읽기 → state/nodes/agents/graph 구현)
 
-4. 테스트         → "챗봇에 대한 포괄적인 테스트 작성"
+4. 스트리밍 추가  → "챗봇 Cast에 스트리밍 추가"
+   (streaming-cast: 스트림 모드 선택 → 토큰 스트리밍, 서브그래프 스트리밍)
+
+5. 테스트         → "챗봇에 대한 포괄적인 테스트 작성"
    (testing-cast: LLM 모킹 + 노드 단위 테스트 + 그래프 통합 테스트)
 ```
 
@@ -262,6 +275,7 @@ my_workflow/
 │       ├── architecting-act/      # 설계 단계: 패턴, 템플릿, 검증
 │       ├── developing-cast/       # 구현 단계: 50개 이상 참조 패턴
 │       ├── developing-deepagent/  # DeepAgent 단계: 백엔드, 서브에이전트, 샌드박스
+│       ├── streaming-cast/        # 스트리밍 단계: 스트림 모드, 서브그래프 스트리밍
 │       └── testing-cast/          # 테스팅 단계: 모킹, 픽스처, 커버리지
 ├── casts/
 │   ├── base_node.py              # 베이스 노드 클래스 (동기/비동기, 시그니처 검증)

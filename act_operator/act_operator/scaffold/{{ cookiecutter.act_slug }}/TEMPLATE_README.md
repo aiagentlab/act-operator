@@ -186,6 +186,7 @@ Agent Skills are folders of instructions that enable AI agents to **discover** c
 | `@architecting-act` | Design architecture | Starting {{ cookiecutter.act_name }} Project, Planning new cast, redesigning existing cast, unclear about structure, need CLAUDE.md |
 | `@developing-cast` | Implement LangGraph cast | Building nodes/agents (create_agent)/tools, need LangGraph patterns |
 | `@developing-deepagent` | Implement DeepAgent | Using create_deep_agent, need subagents/backends/sandbox/long-term memory |
+| `@streaming-cast` | Add streaming | Adding streaming to runtime/API endpoint, need token streaming, custom stream events, subgraph streaming |
 | `@testing-cast` | Write tests | Creating pytest tests, mocking strategies, fixtures |
 
 ### How to Use
@@ -205,6 +206,7 @@ Skills guide you through their specific domain:
 - `architecting-act`: Interactive Q&A → generates `CLAUDE.md` (architecture diagram, node specs, development commands)
 - `developing-cast`: Reads `CLAUDE.md` (Optional) → implements LangGraph cast code
 - `developing-deepagent`: Reads `CLAUDE.md` (Optional) → implements DeepAgent components (create_deep_agent)
+- `streaming-cast`: Reads graph.py → implements streaming (stream modes, StreamWriter, subgraph/agent streaming)
 - `testing-cast`: Creates pytest test files
 
 ### Recommended Development Flow
@@ -215,6 +217,8 @@ Skills guide you through their specific domain:
 2. @developing-cast   →  Implement nodes, agents (create_agent), graphs
         ↓ (if DeepAgent nodes needed)
    @developing-deepagent  →  Implement create_deep_agent, subagents, backends
+        ↓ (if streaming needed)
+   @streaming-cast    →  Add streaming (stream modes, token streaming, subgraph streaming)
         ↓
 3. @testing-cast      →  Write and run tests
 ```
@@ -522,6 +526,7 @@ Agent Skills는 AI 에이전트가 기능을 **발견(Discover)** 하고, 관련
 | `@architecting-act` | 아키텍처 설계 | {{ cookiecutter.act_name }} 프로젝트 시작, 새 cast 계획, 기존 cast 재설계, 구조 불명확, CLAUDE.md 필요 시 |
 | `@developing-cast` | LangGraph Cast 구현 | 노드/에이전트(create_agent)/툴 구현, LangGraph 패턴 필요 시 |
 | `@developing-deepagent` | DeepAgent 구현 | create_deep_agent 사용, 서브에이전트/백엔드/샌드박스/장기 메모리 필요 시 |
+| `@streaming-cast` | 스트리밍 구현 | 런타임/API 엔드포인트 스트리밍 추가, 토큰 스트리밍, 커스텀 스트림 이벤트, 서브그래프 스트리밍 필요 시 |
 | `@testing-cast` | 테스트 작성 | pytest 테스트 생성, 모킹 전략, 픽스처 |
 
 ### 사용 방법
@@ -541,6 +546,7 @@ Agent Skills는 AI 에이전트가 기능을 **발견(Discover)** 하고, 관련
 - `architecting-act`: 대화형 Q&A → `CLAUDE.md` 생성 (아키텍처 다이어그램, 노드 명세, 개발 명령어)
 - `developing-cast`: `CLAUDE.md` 읽기(선택) → LangGraph Cast 코드 구현
 - `developing-deepagent`: `CLAUDE.md` 읽기(선택) → DeepAgent 컴포넌트 구현 (create_deep_agent)
+- `streaming-cast`: graph.py 읽기 → 스트리밍 구현 (스트림 모드, StreamWriter, 서브그래프/에이전트 스트리밍)
 - `testing-cast`: pytest 테스트 파일 생성
 
 ### 권장 개발 흐름
@@ -551,6 +557,8 @@ Agent Skills는 AI 에이전트가 기능을 **발견(Discover)** 하고, 관련
 2. @developing-cast   →  노드, 에이전트(create_agent), 그래프 구현
         ↓ (DeepAgent 노드가 필요한 경우)
    @developing-deepagent  →  create_deep_agent, 서브에이전트, 백엔드 구현
+        ↓ (스트리밍이 필요한 경우)
+   @streaming-cast    →  스트리밍 추가 (스트림 모드, 토큰 스트리밍, 서브그래프 스트리밍)
         ↓
 3. @testing-cast      →  테스트 작성 및 실행
 ```

@@ -116,6 +116,7 @@ The Act Operator project consists of several components.
 - `architecting-act`: Architecture design, subgraph composition strategies & CLAUDE.md generation
 - `developing-cast`: LangGraph cast implementation patterns (create_agent, nodes, memory, middleware)
 - `developing-deepagent`: DeepAgent harness patterns (create_deep_agent, subagents, backends, sandbox)
+- `streaming-cast`: LangGraph v2 streaming patterns (stream modes, StreamWriter, subgraph/agent streaming, SSE/WebSocket integration)
 - `testing-cast`: Testing strategies
 
 ### 4️⃣ Documentation (Separate Repository)

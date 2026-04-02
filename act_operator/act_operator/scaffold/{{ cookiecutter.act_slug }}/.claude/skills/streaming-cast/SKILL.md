@@ -141,7 +141,7 @@ See [patterns/integration.md](./resources/patterns/integration.md). SSE is the L
 |----------|----------|
 | filtering by node name, tag, or namespace | [patterns/filtering.md](./resources/patterns/filtering.md) |
 | combining multiple stream modes | [patterns/multiple-modes.md](./resources/patterns/multiple-modes.md) |
-| SSE / WebSocket transport integration | [patterns/frontend-integration.md](./resources/patterns/frontend-integration.md) |
+| SSE / WebSocket transport integration | [patterns/integration.md](./resources/patterns/integration.md) |
 
 ---
 
