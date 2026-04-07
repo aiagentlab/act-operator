@@ -838,9 +838,7 @@ def _upgrade_skills(
         # Backup existing skills
         if target_skills.exists():
             shutil.move(str(target_skills), str(backup_skills))
-            console.print(
-                "[dim]Backed up existing skills to .claude/skills.bak/[/dim]"
-            )
+            console.print("[dim]Backed up existing skills to .claude/skills.bak/[/dim]")
 
         # Copy rendered skills
         target_claude.mkdir(parents=True, exist_ok=True)
@@ -881,9 +879,7 @@ def upgrade_command(
     table.add_row("Skills", str(skill_count))
     table.add_row("Location", str(act_path / ".claude" / "skills"))
     console.print(table)
-    console.print(
-        "[bold green]Skills upgraded successfully![/bold green]"
-    )
+    console.print("[bold green]Skills upgraded successfully![/bold green]")
 
 
 def main() -> None:
