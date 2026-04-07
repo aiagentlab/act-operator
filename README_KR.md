@@ -378,11 +378,33 @@ act new [OPTIONS]
   --act-name TEXT       프로젝트 이름
   --cast-name TEXT      초기 Cast 이름
   --path PATH           대상 디렉토리
+  --lang TEXT           스캐폴드 문서 언어 (en|kr)
 
 # 기존 프로젝트에 Cast 추가
 act cast [OPTIONS]
   --cast-name TEXT      Cast 이름
   --path PATH           Act 프로젝트 디렉토리
+  --lang TEXT           스캐폴드 Cast 문서 언어 (en|kr)
+
+# 기존 Act 프로젝트의 스킬 업그레이드
+act upgrade [OPTIONS]
+  --path PATH           Act 프로젝트 디렉토리 (기본값: 현재 디렉토리)
+```
+
+### `act upgrade`
+
+기존 Act 프로젝트의 `.claude/skills/`를 Act Operator에 번들된 최신 버전으로 업데이트합니다. Act Operator의 새 버전에 개선된 스킬이나 추가 스킬이 포함될 때 유용합니다.
+
+- `README.md`에서 프로젝트 언어(영어/한국어)를 자동 감지
+- `langgraph.json`에서 첫 번째 Cast를 자동 감지
+- 교체 전 기존 스킬을 `.claude/skills.bak/`에 백업
+
+```bash
+# 현재 디렉토리의 스킬 업그레이드
+act upgrade
+
+# 특정 프로젝트의 스킬 업그레이드
+act upgrade --path ./my-act-project
 ```
 
 스캐폴딩 후 자세한 사용법 — 의존성 관리, 개발 서버, 그래프 레지스트리 설정 등 — 은 생성된 프로젝트 내 `TEMPLATE_README.md`를 참조하세요.

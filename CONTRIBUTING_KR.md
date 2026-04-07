@@ -50,6 +50,9 @@ uv sync
 # 로컬에서 CLI 실행
 uv run act new --path ./test-act --act-name "Test" --cast-name "Main"
 
+# 기존 프로젝트의 스킬 업그레이드
+uv run act upgrade --path ./test-act
+
 # 테스트 실행 시
 uv run pytest
 ```
@@ -96,7 +99,7 @@ Act Operator 프로젝트는 여러 컴포넌트로 구성되어 있습니다.
 **위치**: `act_operator/`
 
 **포함 내용**:
-- CLI 명령어 (`act new`, `act cast`)
+- CLI 명령어 (`act new`, `act cast`, `act upgrade`)
 - cookiecutter 스캐폴드 생성 로직
 - 빌드/배포 프로세스
 

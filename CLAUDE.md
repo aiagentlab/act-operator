@@ -10,6 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Key features:
 - Generate modular LangGraph project structures via `act new`
 - Add new graph components ("Casts") via `act cast`
+- Upgrade skills to the latest version via `act upgrade`
 - Multi-language template support (English/Korean)
 - Built-in Claude Code skills for architecture, development, and testing
 
@@ -25,6 +26,7 @@ uv sync
 # Run CLI directly
 uv run act new              # Create new Act project
 uv run act cast             # Add Cast to existing project
+uv run act upgrade          # Upgrade skills in existing project
 
 # Run tests (ignores scaffold templates)
 uv run pytest
@@ -51,7 +53,7 @@ act-operator/
 │   └── act_operator/               # Source code
 │       ├── __init__.py             # Version: __version__
 │       ├── __main__.py             # Entry point
-│       ├── cli.py                  # Typer CLI commands (new, cast)
+│       ├── cli.py                  # Typer CLI commands (new, cast, upgrade)
 │       ├── utils.py                # Name normalization, cookiecutter rendering
 │       ├── version.py              # Version utilities
 │       ├── scaffold/               # Cookiecutter template
