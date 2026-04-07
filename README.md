@@ -378,11 +378,33 @@ act new [OPTIONS]
   --act-name TEXT       Project name
   --cast-name TEXT      Initial cast name
   --path PATH           Target directory
+  --lang TEXT           Language for scaffolded docs (en|kr)
 
 # Add cast to existing project
 act cast [OPTIONS]
   --cast-name TEXT      Cast name
   --path PATH           Act project directory
+  --lang TEXT           Language for scaffolded cast docs (en|kr)
+
+# Upgrade skills in an existing Act project
+act upgrade [OPTIONS]
+  --path PATH           Act project directory (default: current directory)
+```
+
+### `act upgrade`
+
+Updates `.claude/skills/` in an existing Act project to the latest version bundled with Act Operator. This is useful when a new version of Act Operator ships improved or additional skills.
+
+- Auto-detects the project language (English/Korean) from `README.md`
+- Auto-detects the first Cast from `langgraph.json`
+- Backs up existing skills to `.claude/skills.bak/` before replacing
+
+```bash
+# Upgrade skills in the current directory
+act upgrade
+
+# Upgrade skills in a specific project
+act upgrade --path ./my-act-project
 ```
 
 After scaffolding, see `TEMPLATE_README.md` in your generated project for detailed usage — dependency management, development server, graph registry configuration, and more.

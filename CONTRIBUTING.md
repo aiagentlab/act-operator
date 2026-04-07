@@ -50,6 +50,9 @@ uv sync
 # Run CLI locally
 uv run act new --path ./test-act --act-name "Test" --cast-name "Main"
 
+# Upgrade skills in an existing project
+uv run act upgrade --path ./test-act
+
 # Run tests (when available)
 uv run pytest
 ```
@@ -96,7 +99,7 @@ The Act Operator project consists of several components.
 **Location**: `act_operator/`
 
 **Includes**:
-- CLI commands (`act new`, `act cast`)
+- CLI commands (`act new`, `act cast`, `act upgrade`)
 - cookiecutter scaffold generation logic
 - Build/deployment processes
 
