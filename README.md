@@ -117,7 +117,8 @@ Use @architecting-act to design a customer support chatbot
 
 > **Note for other tools**: The `.claude` directory naming is specific to Claude Code. If you use Cursor, Gemini CLI, or other AI tools that support skill directories, rename it according to that tool's conventions.
 
-### OpenCode Quick Start
+<details>
+<summary><strong>OpenCode Quick Start</strong></summary>
 
 ```bash
 opencode .
@@ -126,6 +127,8 @@ opencode run "Design a customer support chatbot"
 ```
 
 OpenCode reads environment variables from `.env` at the project root (configured in `langgraph.json` as `env: ".env"`).
+
+</details>
 
 ## The Executable SSOT
 
