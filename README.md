@@ -28,7 +28,7 @@
 
 ※ 한국어로 읽으시는 경우: [README_KR.md](README_KR.md)
 
-**A harness for AI-assisted LangGraph development.** Raises the floor so every developer gets consistent, high-quality agent output — regardless of experience level.
+**A production-grade harness for controlling LangGraph 1.0+ project structure with AI agents.** Designed for real products — not just prototypes.
 
 ```bash
 uvx --from act-operator act new
@@ -40,19 +40,32 @@ uvx --from act-operator act new
   <img alt="Act Operator Flowchart" src=".github/images/flowchart-light-theme.png" width="100%">
 </picture>
 
-## The Problem: Context Disparity
+## The Problem: Context Gap
 
-When you ask an AI agent to implement a LangGraph workflow, the quality of the output depends almost entirely on the context it receives. A developer who deeply knows the codebase structure, the team's conventions, and the LangGraph 1.0+ API gets excellent results. Someone touching LangGraph for the first time — or working in an unfamiliar part of the codebase — gets something generic, inconsistent, or subtly wrong.
+> Same model, different results — why?
 
-This is the **context disparity problem**: the gap between what the most-informed developer extracts from AI tools and what everyone else gets.
+While developing LangGraph agents in production, we kept observing the same pattern across our team.
 
-A harness eliminates this gap. By standardizing the environment in which the agent operates — the project structure, the decision trees, the reference patterns, the persistent specs — you raise the floor for the entire team.
+An experienced developer asks Claude Code to implement a workflow — excellent code comes back. A newcomer makes the same request to the same Claude Code — generic, inconsistent, subtly wrong code comes back. Same model. Why?
 
-**Act Operator is a harness for LangGraph development.**
+The problem isn't the model. It's the **context gap** — and it affects humans and AI agents equally. A new team member without onboarding struggles with the same codebase for the same reason: conventions are implicit, architecture lives in someone's head, and there's no structured environment to guide them. The AI agent is no different.
+
+Even experienced developers hit this wall: when sessions change, the agent forgets yesterday's architecture. Knowledge lives in people's heads, not in the codebase. If a human can't find the conventions, the agent can't either.
+
+The fix isn't better prompts or better models. It's designing the environment in which both humans and agents operate.
 
 ## What is a Harness?
 
-A harness is the system of scaffolding, executable knowledge, and feedback loops that wraps your AI agents so they reliably produce correct output — regardless of who is driving.
+The word *harness* comes from Old French *harnois* — originally meaning "military equipment, apparatus of control." Since the 1690s, it has carried a metaphorical meaning: *to control an untamed force for productive use*. A wind farm "harnesses" the wind. Engineering has applied this principle in different forms for decades:
+
+- **Wiring Harness**: Bundles tangled wires into a single controlled unit. An automotive industry standard for decades.
+- **Test Harness**: Isolates a component with stubs and drivers so it can run without the full infrastructure. A core concept in software testing.
+- **CI/CD Pipeline**: Structures the deployment flow so code passes through build, test, and verification layers before reaching production. Another harness.
+
+The common thread:
+> An external environment designed to steer an uncontrolled subject — wires, code components, deployment flows — in the right direction.
+
+In AI-assisted development, **a harness is the system of scaffolding, executable knowledge, and feedback loops that wraps both humans and AI agents so they reliably produce correct output — regardless of who is driving.**
 
 Act Operator implements this with three layers:
 
