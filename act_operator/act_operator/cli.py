@@ -6,65 +6,21 @@ from pathlib import Path
 
 import typer
 
-from act_operator.cast_scaffolder import ensure_act_project, generate_cast_project
-from act_operator.cli_prompts import resolve_cast_name
-from act_operator.project_scaffolder import generate_project
-
+from .cast_scaffolder import ensure_act_project, generate_cast_project
+from .cli_options import (
+    ACT_NAME_OPTION,
+    CAST_ACT_PATH_OPTION,
+    CAST_NAME_OPTION,
+    LANG_OPTION,
+    NEW_CAST_LANG_OPTION,
+    NEW_CAST_NAME_OPTION,
+    PATH_OPTION,
+)
+from .cli_prompts import resolve_cast_name
+from .project_scaffolder import generate_project
 from .utils import build_name_variants
 
 app = typer.Typer(help="Act Operator", invoke_without_command=True)
-
-PATH_OPTION = typer.Option(
-    None,
-    "--path",
-    "-p",
-    help="Directory where the new Act project will be created",
-    file_okay=False,
-    dir_okay=True,
-    writable=True,
-    resolve_path=True,
-)
-ACT_NAME_OPTION = typer.Option(
-    None,
-    "--act-name",
-    "-a",
-    help="Display name of the Act project",
-)
-CAST_NAME_OPTION = typer.Option(
-    None,
-    "--cast-name",
-    "-c",
-    help="Display name of the initial Cast Graph",
-)
-LANG_OPTION = typer.Option(
-    None,
-    "--lang",
-    "-l",
-    help="Language for scaffolded docs (en|kr)",
-)
-
-CAST_ACT_PATH_OPTION = typer.Option(
-    Path.cwd(),
-    "--path",
-    "-p",
-    help="Path to an existing Act project",
-    file_okay=False,
-    dir_okay=True,
-    exists=True,
-    resolve_path=True,
-)
-NEW_CAST_NAME_OPTION = typer.Option(
-    None,
-    "--cast-name",
-    "-c",
-    help="Display name of the Cast to add",
-)
-NEW_CAST_LANG_OPTION = typer.Option(
-    "en",
-    "--lang",
-    "-l",
-    help="Language for scaffolded cast docs (en|kr)",
-)
 
 
 @app.callback()
