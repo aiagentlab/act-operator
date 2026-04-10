@@ -1,7 +1,7 @@
 ---
 name: architecting-act
-description: Designs Act and Cast architectures through dynamic questioning, outputting validated CLAUDE.md with mermaid diagrams. Use when starting new Act project, adding cast, planning architecture, extracting sub-cast (10+ nodes), or ask "design architecture", "plan cast", "create CLAUDE.md".
-version: "2026.02.03"
+description: Designs Act and Cast architectures through dynamic questioning, outputting validated CLAUDE.md with mermaid diagrams. Use when starting new Act project, adding cast, planning architecture, extracting sub-cast (10+ nodes), redesigning existing cast, or ask "design architecture", "plan cast", "redesign cast", "create CLAUDE.md".
+version: "2026.03.31"
 author: Proact0
 allowed-tools:
   - Bash(uv run act cast *)
@@ -21,11 +21,13 @@ Design and manage Act (project) and Cast (graph) architectures through dynamic, 
 - Planning initial Act architecture (after `act new`)
 - Adding new Cast to existing Act
 - Analyzing Cast complexity for Sub-Cast extraction
+- Redesigning existing Cast architecture (already implemented code exists)
 - Unclear about architecture design
 
 ## When NOT to Use
 
-- Implementing code → use `developing-cast`
+- Implementing LangGraph cast code → use `developing-cast`
+- Implementing DeepAgent agent code → use `developing-deepagent`
 - Creating cast files → use `engineering-act`
 - Writing tests → use `testing-cast`
 
@@ -52,6 +54,7 @@ Design and manage Act (project) and Cast (graph) architectures through dynamic, 
 - **CLAUDE.md doesn't exist?** → **Mode 1: Initial Design**
 - **CLAUDE.md exists + adding cast?** → **Mode 2: Add Cast**
 - **CLAUDE.md exists + cast complex?** → **Mode 3: Extract Sub-Cast**
+- **Implementation code exists + redesign requested?** → **Mode 4: Redesign Cast**
 
 ---
 
@@ -112,6 +115,32 @@ Design and manage Act (project) and Cast (graph) architectures through dynamic, 
    - Update `/CLAUDE.md` Casts table (add sub-cast row)
    - Create `/casts/{subcast_slug}/CLAUDE.md` (sub-cast details)
    - Update `/casts/{parent_cast}/CLAUDE.md` (reference sub-cast)
+6. **Validate** → Run validation script
+
+---
+
+## Mode 4: Redesign Cast
+
+**When:** Cast already has implementation code, user wants to redesign or update architecture
+
+**Steps:**
+1. **Analyze existing implementation** → Read cast source files
+   - Read `/casts/{cast_slug}/graph.py` → Current graph structure, nodes, edges
+   - Read `/casts/{cast_slug}/modules/*.py` → State, nodes, agents, tools, conditions
+   - Read `/casts/{cast_slug}/CLAUDE.md` if exists → Current architecture spec
+2. **Summarize current architecture** → Present findings to user
+   - List discovered nodes (custom / ToolNode / `create_agent` subgraph / `create_deep_agent`)
+   - List discovered edges and conditional routing
+   - Identify pattern (Sequential, Branching, Cyclic, Coordinator, etc.)
+   - Note any discrepancies between CLAUDE.md (if exists) and actual code
+3. **Questions** → [modes/redesign-cast-questions.md](./resources/modes/redesign-cast-questions.md)
+   - Present current architecture summary first
+   - Ask what needs to change using AskUserQuestion
+4. **Redesign** → Follow "Cast Design Workflow" below
+   - Use current implementation as baseline, apply requested changes
+5. **Update CLAUDE.md files** → See "Generating CLAUDE.md" section below
+   - Update `/casts/{cast_slug}/CLAUDE.md` (redesigned architecture)
+   - Update `/CLAUDE.md` Casts table if cast purpose/pattern changed
 6. **Validate** → Run validation script
 
 ---
@@ -178,70 +207,44 @@ Design and manage Act (project) and Cast (graph) architectures through dynamic, 
 }
 ```
 
-### 2. State Schema
+### 2. Node Composition Strategy
 
-**YOU design schema** using [state-schema.md](./resources/design/state-schema.md).
+**For each node, determine its type from the 5 node types.**
 
-Present as **TABLES ONLY** (InputState, OutputState, OverallState).
+Refer to [agentic-design-patterns.md](./resources/agentic-design-patterns.md) § "Node Type Decision" and [node-specification.md](./resources/design/node-specification.md) § "Node Types".
 
-**AskUserQuestion Format**:
+**AskUserQuestion Format** (for nodes where the type is ambiguous):
 ```json
 {
-  "question": "Any fields to modify in the state schema?",
-  "header": "Schema",
+  "question": "How should this node be composed?",
+  "header": "Node Composition: {NodeName}",
   "options": [
-    {"label": "Looks good", "description": "Proceed with the proposed schema"},
-    {"label": "Add fields", "description": "I need additional fields"},
-    {"label": "Remove fields", "description": "Some fields are unnecessary"},
-    {"label": "Modify types", "description": "Change field types or constraints"}
+    {"label": "Custom Node (BaseNode)", "description": "Single deterministic function, no tools/reasoning needed"},
+    {"label": "ToolNode", "description": "Stateless tool execution — parses AIMessage.tool_calls, no reasoning loop"},
+    {"label": "create_agent Subgraph", "description": "Tool-calling agent with autonomous ReAct reasoning loop"},
+    {"label": "create_deep_agent", "description": "Complex agent with subagent delegation, sandbox, long-term memory"}
   ],
   "multiSelect": false
 }
 ```
+
+**Skip this question** when the composition is obvious (e.g., simple data transform → custom node, model tool calls without reasoning → ToolNode, tool-heavy autonomous task → create_agent subgraph).
+
+**Note:** START/END are always present — they are structural constants, not design choices.
 
 ### 3. Node Specification
 
 **Ask pattern-specific question** using [node-specification.md](./resources/design/node-specification.md):
 
-**YOU design nodes** (single responsibility, CamelCase naming).
+**YOU design nodes** (single responsibility, CamelCase naming). Use the appropriate output format per node type (custom / ToolNode / agent subgraph / deep agent).
 
 ### 4. Architecture Diagram
 
 **YOU create Mermaid diagram** using [edge-routing.md](./resources/design/edge-routing.md).
 
-Ensure: All nodes connected, all paths reach END, conditionals labeled.
+Ensure: All nodes connected, all paths reach END, conditionals labeled. Use subgraph syntax for agent nodes (see edge-routing § "Agent Subgraph as Node").
 
-### 5. Technology Stack
-
-> `langgraph`, `langchain` included. Identify **additional** dependencies only.
-
-**Proactive Approach**: Analyze the architecture diagram to identify ALL technology choices user needs to make. Proactively ask about each relevant category using AskUserQuestion.
-
-**Guideline**: For each technology category detected in the architecture (LLM providers, vector stores, databases, HTTP clients, file processors, etc.), create an AskUserQuestion with:
-- Clear question about which option to use
-- 3-4 common options with brief descriptions
-- `multiSelect: true` if multiple tools may be needed together
-
-**Example Format:**
-```json
-{
-  "question": "Which LLM provider should be used?",
-  "header": "LLM Provider",
-  "options": [
-    {"label": "OpenAI (Recommended)", "description": "GPT-4, GPT-3.5-turbo"},
-    {"label": "Anthropic", "description": "Claude models"},
-    {"label": "Azure OpenAI", "description": "Azure-hosted OpenAI models"},
-    {"label": "Google", "description": "Gemini models"}
-  ],
-  "multiSelect": false
-}
-```
-
-**Batch questions** when multiple categories detected (up to 4 at once).
-
-**YOU determine** final packages + environment variables based on answers.
-
-### 6. Validate
+### 5. Validate
 
 ```bash
 python ./scripts/validate_architecture.py
@@ -311,8 +314,6 @@ Generate these sections in order:
 |--------------|---------|----------|-------------|---------|
 | `cast-overview` | ## Overview | Yes | `{{PURPOSE}}`, `{{PATTERN}}`, `{{LATENCY}}` | Purpose, pattern, latency |
 | `architecture-diagram` | ## Architecture Diagram | Yes | `{{MERMAID_DIAGRAM}}` | Mermaid graph definition |
-| `state-schema` | ## State Schema | Yes | `{{*_STATE_FIELDS}}` | InputState, OutputState, OverallState tables |
-| `node-specifications` | ## Node Specifications | Yes | `{{NODE_SPECIFICATIONS}}` | Node details with Responsibility, Reads, Writes |
-| `technology-stack` | ## Technology Stack | Yes | `{{DEPENDENCIES}}`, `{{ENV_VARIABLES}}` | Dependencies and env vars |
+| `node-specifications` | ## Node Specifications | Yes | `{{NODE_SPECIFICATIONS}}` | Node details with responsibility and type |
 | `cast-structure` | ## Cast Structure | No | `{{CAST_SLUG}}` | Directory tree |
 | `development-commands` | ## Development Commands | Yes | `{{CAST_SLUG}}` | Cast-specific dependency commands |{% endraw %}

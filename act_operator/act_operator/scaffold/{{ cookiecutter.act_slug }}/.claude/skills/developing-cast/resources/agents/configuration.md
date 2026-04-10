@@ -146,6 +146,35 @@ def set_agent_with_prompt():
     )
 ```
 
+### SystemMessage with Cache Control (langchain v1.1+)
+
+`system_prompt` accepts `SystemMessage` instances directly, enabling structured content blocks and Anthropic prompt caching:
+
+```python
+# casts.{cast_name}.modules.agents
+from langchain_core.messages import SystemMessage
+from langchain.agents import create_agent
+
+def set_cached_prompt_agent():
+    return create_agent(
+        model=get_sample_model(),
+        tools=[...],
+        system_prompt=SystemMessage(
+            content=[
+                {
+                    "type": "text",
+                    "text": "You are an AI assistant for document analysis.",
+                },
+                {
+                    "type": "text",
+                    "text": "<long reference document content>",
+                    "cache_control": {"type": "ephemeral"},
+                },
+            ]
+        ),
+    )
+```
+
 ### Dynamic Prompt
 
 Use `@dynamic_prompt` middleware to change prompt based on runtime context.

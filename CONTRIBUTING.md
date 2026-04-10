@@ -50,6 +50,9 @@ uv sync
 # Run CLI locally
 uv run act new --path ./test-act --act-name "Test" --cast-name "Main"
 
+# Upgrade skills in an existing project
+uv run act upgrade --path ./test-act
+
 # Run tests (when available)
 uv run pytest
 ```
@@ -96,7 +99,7 @@ The Act Operator project consists of several components.
 **Location**: `act_operator/`
 
 **Includes**:
-- CLI commands (`act new`, `act cast`)
+- CLI commands (`act new`, `act cast`, `act upgrade`)
 - cookiecutter scaffold generation logic
 - Build/deployment processes
 
@@ -113,8 +116,10 @@ The Act Operator project consists of several components.
 **Location**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **Includes**:
-- `architecting-act`: Architecture design & CLAUDE.md create
-- `developing-cast`: Implementation patterns
+- `architecting-act`: Architecture design, subgraph composition strategies & CLAUDE.md generation
+- `developing-cast`: LangGraph cast implementation patterns (create_agent, nodes, memory, middleware)
+- `developing-deepagent`: DeepAgent harness patterns (create_deep_agent, subagents, backends, sandbox)
+- `streaming-cast`: LangGraph v2 streaming patterns (stream modes, StreamWriter, subgraph/agent streaming, SSE/WebSocket integration)
 - `testing-cast`: Testing strategies
 
 ### 4️⃣ Documentation (Separate Repository)
@@ -305,7 +310,7 @@ chore(deps): upgrade dependencies
 
 **Allowed scopes** (see [pr_lint.yml](.github/workflows/pr_lint.yml)):
 - `cli`, `scaffold`, `utils`, `docs`, `tests`
-- `workflow`, `cookiecutter`, `ci`, `deps`
+- `workflow`, `cookiecutter`, `ci`, `deps`, `skills`
 
 ---
 

@@ -50,6 +50,9 @@ uv sync
 # 로컬에서 CLI 실행
 uv run act new --path ./test-act --act-name "Test" --cast-name "Main"
 
+# 기존 프로젝트의 스킬 업그레이드
+uv run act upgrade --path ./test-act
+
 # 테스트 실행 시
 uv run pytest
 ```
@@ -96,7 +99,7 @@ Act Operator 프로젝트는 여러 컴포넌트로 구성되어 있습니다.
 **위치**: `act_operator/`
 
 **포함 내용**:
-- CLI 명령어 (`act new`, `act cast`)
+- CLI 명령어 (`act new`, `act cast`, `act upgrade`)
 - cookiecutter 스캐폴드 생성 로직
 - 빌드/배포 프로세스
 
@@ -113,8 +116,10 @@ Act Operator 프로젝트는 여러 컴포넌트로 구성되어 있습니다.
 **위치**: `act_operator/scaffold/{{ cookiecutter.act_slug }}/.claude/skills/`
 
 **포함 스킬**:
-- `architecting-act`: 아키텍처 설계 및 CLAUDE.md 생성
-- `developing-cast`: 구현 패턴
+- `architecting-act`: 아키텍처 설계, 서브그래프 구성 전략 및 CLAUDE.md 생성
+- `developing-cast`: LangGraph Cast 구현 패턴 (create_agent, 노드, 메모리, 미들웨어)
+- `developing-deepagent`: DeepAgent 하네스 패턴 (create_deep_agent, 서브에이전트, 백엔드, 샌드박스)
+- `streaming-cast`: LangGraph v2 스트리밍 패턴 (스트림 모드, StreamWriter, 서브그래프/에이전트 스트리밍, SSE/WebSocket 통합)
 - `testing-cast`: 테스팅 전략
 
 ### 4️⃣ 문서 (별도 레포)
@@ -305,7 +310,7 @@ chore(deps): upgrade dependencies
 
 **허용된 scope** ([pr_lint.yml](.github/workflows/pr_lint.yml) 참조):
 - `cli`, `scaffold`, `utils`, `docs`, `tests`
-- `workflow`, `cookiecutter`, `ci`, `deps`
+- `workflow`, `cookiecutter`, `ci`, `deps`, `skills`
 
 ---
 
