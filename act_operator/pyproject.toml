@@ -21,6 +21,7 @@ license-files = ["LICENSE"]
 [dependency-groups]
 test = [
     "pytest",
+    "pytest-cov",
     "pytest-mock",
     "pytest-subprocess",
 ]
@@ -57,6 +58,18 @@ include = ["act_operator", "tests", "README.md", "LICENSE", ".gitignore"]
 [tool.pytest.ini_options]
 addopts = "-ra --ignore=act_operator/scaffold"
 testpaths = ["act_operator/tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "act_operator/scaffold/*",
+    "act_operator/tests/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
 
 [tool.ruff]
 extend-exclude = [
