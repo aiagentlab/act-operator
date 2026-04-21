@@ -1,7 +1,7 @@
 ---
 name: developing-cast
 description: Implements LangGraph cast components following systematic workflow (state, deps, nodes, conditions, graph). Use when implementing cast, building nodes/agents/tools, need LangGraph patterns (memory, retry, guardrails, vector stores), or ask "implement cast", "build graph", "add node".
-version: "2026.02.04"
+version: "2026.03.31"
 author: Proact0
 allowed-tools:
   - Bash(uv sync *)
@@ -14,9 +14,9 @@ allowed-tools:
   - Edit
   - AskUserQuestion
 ---
-# Developing {{ cookiecutter.act_name }}'s Cast
+# Developing Backend's Cast
 
-Implement LangGraph casts following {{ cookiecutter.act_name }} Act patterns.
+Implement LangGraph casts following Backend Act patterns.
 
 ## When to Use
 
@@ -27,6 +27,7 @@ Implement LangGraph casts following {{ cookiecutter.act_name }} Act patterns.
 ## When NOT to Use
 
 - Architecture design → `architecting-act`
+- DeepAgent harness (create_deep_agent, backends, subagents) → `developing-deepagent`
 - Project setup → `engineering-act`
 - Testing → `testing-cast`
 
@@ -40,7 +41,7 @@ Implement LangGraph casts following {{ cookiecutter.act_name }} Act patterns.
 
 **If CLAUDE.md exists:**
 1. Read `/CLAUDE.md` → Act overview, find target cast
-2. Read `/casts/{cast_slug}/CLAUDE.md` → Architecture diagram, state schema, node specs
+2. Read `/casts/{cast_slug}/CLAUDE.md` → Architecture diagram, node specs
 3. Proceed to Step 2
 
 **If CLAUDE.md not found:**
@@ -98,6 +99,7 @@ Use `engineering-act`
 |-------------|----------|
 | defining graph state with TypedDict | [core/state.md](./resources/core/state.md) |
 | implementing sync/async node classes | [core/node.md](./resources/core/node.md) |
+| using prebuilt ToolNode for tool execution | [core/tool-node.md](./resources/core/tool-node.md) |
 | setting up edges or conditional routing | [core/edge.md](./resources/core/edge.md) |
 | assembling StateGraph and compiling | [core/graph.md](./resources/core/graph.md) |
 | reusing graphs as subgraphs | [core/subgraph.md](./resources/core/subgraph.md) |
@@ -194,6 +196,6 @@ Use `engineering-act`
 
 - [ ] CLAUDE.md checked (root + cast-specific if exists, skipped if not)
 - [ ] Implementation order: state → deps(option) → nodes → conditions(option) → graph
-- [ ] State/nodes match CLAUDE.md specs
+- [ ] Nodes match CLAUDE.md specs
 - [ ] Dependencies installed, env vars configured
 - [ ] Graph compiles

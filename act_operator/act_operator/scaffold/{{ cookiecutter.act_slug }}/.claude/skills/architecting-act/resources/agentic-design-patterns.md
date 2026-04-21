@@ -365,6 +365,173 @@ graph LR
 
 ---
 
+## Subgraph Composition with `create_agent` / `create_deep_agent`
+
+LangGraph's `create_agent()` (from `langchain.agents`) returns a `CompiledGraph` — a self-contained agent subgraph with its own internal node/edge structure. This subgraph can be composed into a parent graph in multiple ways.
+
+> **Note:** `create_react_agent` is deprecated since LangGraph v1. Always use `create_agent`.
+
+### Agent Type Selection
+
+| Criterion | `create_agent` | `create_deep_agent` |
+|-----------|----------------|---------------------|
+| Complexity | Standard ReAct agent | Multi-step agent harness |
+| Tool usage | Direct tool binding | Tools + subagent delegation |
+| Memory | External (checkpointer) | Built-in long-term memory |
+| Sandbox | No | Yes (virtual filesystems) |
+| Human-in-the-Loop | Via interrupt nodes | Built-in HITL |
+| Subagent spawning | Manual composition | Native subagent support |
+| Best for | Tool-calling agents, reasoning loops | Complex multi-step tasks, coding agents |
+
+**Rule:** Use `create_agent` for focused tool-calling agents. Use `create_deep_agent` when the agent needs subagent delegation, sandboxed execution, or long-term memory.
+
+---
+
+### Composition Strategy A: Subgraph AS a Node
+
+The compiled agent is directly added as a node. The parent graph treats it as an opaque unit.
+
+```mermaid
+graph LR
+    START([START]) --> A[PreprocessNode]
+    A --> B
+
+    subgraph B["ResearchAgent (create_agent subgraph)"]
+        direction LR
+        B1([entry]) --> B2[ReasonNode]
+        B2 --> B3[ToolCallNode]
+        B3 --> B4{ShouldContinue}
+        B4 -->|yes| B2
+        B4 -->|no| B5([exit])
+    end
+
+    B --> C[PostprocessNode]
+    C --> END([END])
+```
+
+**Use when:**
+- The agent has a well-defined, reusable responsibility
+- Internal agent logic should be encapsulated (black-box)
+- State mapping between parent ↔ subgraph is straightforward
+
+---
+
+### Composition Strategy B: Subgraph INSIDE a Node
+
+A regular node function internally invokes one or more agent subgraphs, handling state transformation and orchestration logic.
+
+```mermaid
+graph LR
+    START([START]) --> A[RouterNode]
+    A -->|type_a| B[OrchestratorNodeA]
+    A -->|type_b| C[OrchestratorNodeB]
+
+    B -.->|internally invokes| D["AgentAlpha (subgraph)"]
+    B -.->|internally invokes| E["AgentBeta (subgraph)"]
+
+    C -.->|internally invokes| F["AgentGamma (subgraph)"]
+
+    B --> G[SynthesizeNode]
+    C --> G
+    G --> END([END])
+```
+
+**Use when:**
+- Custom pre/post-processing around the agent is needed
+- Multiple agents are orchestrated within a single step
+- State transformation between parent and agent requires logic
+- The node needs to decide which agent(s) to invoke dynamically
+
+---
+
+### Composition Strategy C: Multi-Agent Subgraph Network
+
+Multiple agent subgraphs are composed as separate nodes in the parent graph, connected via edges.
+
+```mermaid
+graph LR
+    START([START]) --> A
+
+    subgraph A["PlannerAgent (create_agent subgraph)"]
+        direction LR
+        A1([entry]) --> A2[PlanNode] --> A3([exit])
+    end
+
+    A --> B
+
+    subgraph B["ExecutorAgent (create_agent subgraph)"]
+        direction LR
+        B1([entry]) --> B2[ExecuteNode] --> B3[ToolNode] --> B4{Done}
+        B4 -->|no| B2
+        B4 -->|yes| B5([exit])
+    end
+
+    B --> C{QualityCheck}
+    C -->|pass| END([END])
+    C -->|fail| A
+```
+
+**Use when:**
+- Each agent has distinct specialty and tools
+- Agents need to hand off work to each other
+- The overall flow between agents has conditional logic
+- Each agent's internal complexity warrants its own subgraph
+
+---
+
+### Composition Strategy D: DeepAgent with Subagents
+
+`create_deep_agent` as a top-level or nested agent with subagent delegation.
+
+```mermaid
+graph LR
+    START([START]) --> A
+
+    subgraph A["OrchestratorAgent (create_deep_agent)"]
+        direction LR
+        A1([entry]) --> A2[PlanNode]
+        A2 --> A3{DelegateTask}
+        A3 -->|code_task| A4["CoderSubAgent"]
+        A3 -->|research_task| A5["ResearchSubAgent"]
+        A4 --> A6[ReviewNode]
+        A5 --> A6
+        A6 --> A7{NeedMore}
+        A7 -->|yes| A2
+        A7 -->|no| A8([exit])
+    end
+
+    A --> B[FinalizeNode]
+    B --> END([END])
+```
+
+**Use when:**
+- Complex multi-step tasks requiring planning + delegation
+- Subagents need sandboxed execution environments
+- Long-running tasks requiring persistent memory across sessions
+- Native human-in-the-loop approval workflows
+
+---
+
+### Node Type Decision
+
+| Criterion | Custom Node | ToolNode | `create_agent` | `create_deep_agent` |
+|-----------|-------------|----------|----------------|---------------------|
+| Has its own tool set | No | Yes (executes calls) | Yes (binds tools) | Yes + subagent delegation |
+| Internal reasoning loop | No | No | Yes (ReAct) | Yes + planning |
+| Reusable across casts | Unlikely | Yes | Yes | Yes |
+| Internal complexity | Low (single function) | Low (stateless dispatch) | Medium (tool-calling loop) | High (multi-step + subagents) |
+| State isolation needed | No | No | Yes | Yes |
+| Sandbox execution | No | No | No | Yes |
+| Long-term memory | No | No | No | Yes |
+
+**Rule of thumb:**
+- Single deterministic operation → **Custom Node** (BaseNode/AsyncBaseNode)
+- Model outputs tool_calls, needs stateless execution → **ToolNode**
+- Needs tools + autonomous reasoning loop → **`create_agent` subgraph**
+- Needs subagent delegation, sandbox, or long-term memory → **`create_deep_agent`**
+
+---
+
 ## Combining Patterns
 
 **Common pattern combinations:**
